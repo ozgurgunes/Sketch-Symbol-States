@@ -12,7 +12,7 @@ Symbol States plugin for Sketch, saves overrides of a symbol instance as states,
 
 #### Alternatively
 
-Search for Symbol States in [Sketchrunner](http://sketchrunner.com/), [Sketchpacks](https://sketchpacks.com/), or [Sketch Toolbox](http://sketchtoolbox.com/).
+Search for Symbol States in [Sketchrunner](http://sketchrunner.com/) or [Sketchpacks](https://sketchpacks.com/).
 
 ## Usage
 

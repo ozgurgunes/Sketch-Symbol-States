@@ -40,19 +40,19 @@ export default function(context) {
 }
 
 function valueForOverride(symbol, override) {
+  var value
   switch (true) {
     case (override.property == "symbolID"):
-      var symbolID = valueForSymbolOverride(symbol, override)
-      return (symbolID) ? symbolID : override.value
+      value = valueForSymbolOverride(symbol, override)
+      break;
     case (override.property == "textStyle"):
-      var textStyleID = valueForTextStyleOverride(symbol, override)
-      return (textStyleID) ? textStyleID : override.value
+      value = valueForTextStyleOverride(symbol, override)
+      break;
     case (override.property == "layerStyle"):
-      var layerStyleID = valueForLayerStyleOverride(symbol, override)
-      return (layerStyleID) ? layerStyleID : override.value
-    default:
-      return override.value
+      value = valueForLayerStyleOverride(symbol, override)
+      break;
   }
+  return (value) ? value : override.value
 }
 
 

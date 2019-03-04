@@ -40,7 +40,6 @@ export default function(context) {
             value: override.value
           }
           overrides.push(stateOverride)
-          console.log("%o", override.property.toUpperCase()+": "+override.value)
         }
       })
       // TODO: An option to save state to library if this is an imported symbol.

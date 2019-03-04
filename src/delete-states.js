@@ -25,7 +25,7 @@ export default function(context) {
     if (result) {
       if (result.length == states.length) {
         settings.setLayerSettingForKey(symbol.master, defaults.PLUGIN_KEY, [])
-        sendEvent(context, 'Delete States', "delete all", result.length)
+        analytics(context, 'Delete States', "delete all", result.length)
         UI.message("All states deleted.")
       } else {
         result.reverse().forEach(item => {
