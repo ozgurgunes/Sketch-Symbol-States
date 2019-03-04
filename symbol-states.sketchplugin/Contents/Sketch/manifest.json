@@ -1,0 +1,42 @@
+{
+  "compatibleVersion": 3,
+  "bundleVersion": 1,
+  "icon": "icon.png",
+  "commands": [
+    {
+      "name": "Save State",
+      "identifier": "symbol-states.save-state",
+      "shortcut": "cmd ctrl shift o",
+      "script": "save-state.js"
+    },
+    {
+      "name": "Set State",
+      "identifier": "symbol-states.set-state",
+      "shortcut": "cmd ctrl o",
+      "script": "set-state.js"
+    },
+    {
+      "name": "Delete States",
+      "identifier": "symbol-states.delete-states",
+      "shortcut": "cmd ctrl alt shift o",
+      "script": "delete-states.js"
+    }
+  ],
+  "menu": {
+    "title": "Symbol States",
+    "items": [
+      "symbol-states.save-state",
+      "symbol-states.set-state",
+      "symbol-states.delete-states"
+    ]
+  },
+  "version": "0.0.0",
+  "description": "A Sketch plugin which saves overrides of a symbol instance as states to be applyable on another instance of that symbol later.",
+  "homepage": "https://github.com/ozgurgunes/Sketch-Symbol-States",
+  "name": "Symbol States",
+  "identifier": "Symbol States",
+  "disableCocoaScriptPreprocessor": true,
+  "appcast": "https://raw.githubusercontent.com/ozgurgunes/Sketch-Symbol-States/master/.appcast.xml",
+  "author": "Ozgur Gunes",
+  "authorEmail": "o.gunes@gmail.com"
+}

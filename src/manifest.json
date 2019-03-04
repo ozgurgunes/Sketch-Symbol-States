@@ -1,0 +1,33 @@
+{
+  "compatibleVersion": 3,
+  "bundleVersion": 1,
+  "icon": "icon.png",
+  "commands": [
+    {
+      "name": "Save State",
+      "identifier": "symbol-states.save-state",
+      "shortcut" : "cmd ctrl shift o",
+      "script": "./save-state.js"
+    },
+    {
+      "name": "Set State",
+      "identifier": "symbol-states.set-state",
+      "shortcut" : "cmd ctrl o",
+      "script": "./set-state.js"
+    },
+    {
+      "name": "Delete States",
+      "identifier": "symbol-states.delete-states",
+      "shortcut" : "cmd ctrl alt shift o",
+      "script": "./delete-states.js"
+    }
+  ],
+  "menu": {
+    "title": "Symbol States",
+    "items": [
+      "symbol-states.save-state",
+      "symbol-states.set-state",
+      "symbol-states.delete-states"
+    ]
+  }
+}

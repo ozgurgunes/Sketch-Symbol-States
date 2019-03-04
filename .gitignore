@@ -1,0 +1,16 @@
+# dev tools
+dev
+
+# build artifacts
+# symbol-states.sketchplugin
+
+# npm
+node_modules
+.npm
+npm-debug.log
+
+# mac
+.DS_Store
+
+# WebStorm
+.idea

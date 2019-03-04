@@ -1,0 +1,35 @@
+{
+  "name": "symbol-states",
+  "description": "A Sketch plugin which saves overrides of a symbol instance as states to be applyable on another instance of that symbol later.",
+  "version": "0.0.0",
+  "homepage": "https://github.com/ozgurgunes/Sketch-Symbol-States",
+  "author": "Ozgur Gunes <o.gunes@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ozgurgunes/Sketch-Symbol-States.git"
+  },
+  "engines": {
+    "sketch": ">=3.0"
+  },
+  "skpm": {
+    "name": "Symbol States",
+    "manifest": "src/manifest.json",
+    "main": "symbol-states.sketchplugin",
+    "assets": [
+      "assets/**/*"
+    ]
+  },
+  "scripts": {
+    "build": "skpm-build",
+    "watch": "skpm-build --watch",
+    "start": "skpm-build --watch --run",
+    "postinstall": "npm run build && skpm-link"
+  },
+  "devDependencies": {
+    "@skpm/builder": "^0.5.11"
+  },
+  "dependencies": {
+    "sketch-module-google-analytics": "^0.1.4"
+  }
+}
