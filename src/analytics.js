@@ -7,6 +7,5 @@ export default function (context, action, label, value) {
   if (action) { payload.ea = action }
   if (label) { payload.el = label }
   if (value) { payload.ev = value }
-
   return send(context, defaults.GA_TRACKING_ID, 'event', payload)
 }

@@ -287,23 +287,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createCombobox", function() { return createCombobox; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createSelect", function() { return createSelect; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createList", function() { return createList; });
-// import sketch from 'sketch'
-// documentation: https://developer.sketchapp.com/reference/api/
-var sketch = __webpack_require__(/*! sketch/dom */ "sketch/dom"),
-    UI = __webpack_require__(/*! sketch/ui */ "sketch/ui"),
-    app = NSApplication.sharedApplication(),
-    defaults = __webpack_require__(/*! ./defaults */ "./src/defaults.js");
+/* harmony import */ var sketch_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sketch/dom */ "sketch/dom");
+/* harmony import */ var sketch_dom__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sketch_dom__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var sketch_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! sketch/ui */ "sketch/ui");
+/* harmony import */ var sketch_ui__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(sketch_ui__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _defaults_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./defaults.js */ "./src/defaults.js");
 
+
+
+var app = NSApplication.sharedApplication();
 function message(message) {
-  UI.message(defaults.PLUGIN_NAME + ": " + message);
+  sketch_ui__WEBPACK_IMPORTED_MODULE_1___default.a.message(_defaults_js__WEBPACK_IMPORTED_MODULE_2__["PLUGIN_NAME"] + ": " + message);
 }
 function createDialog(message, info, accessory, buttons) {
-  buttons = buttons || ['OK'];
+  var buttons = buttons || ['OK'];
   var alert = NSAlert.alloc().init();
   alert.setMessageText(message);
   alert.setInformativeText(info);
-  buttons.forEach(function (data) {
-    alert.addButtonWithTitle(data);
+  buttons.map(function (data) {
+    return alert.addButtonWithTitle(data);
   });
 
   if (accessory) {
@@ -316,11 +318,8 @@ function createDialog(message, info, accessory, buttons) {
 function createCombobox(msg, info, items, selectedItemIndex) {
   var buttons = ['Save', 'Cancel'];
   var accessory = NSComboBox.alloc().initWithFrame(NSMakeRect(0, 0, 240, 25));
-  accessory.addItemsWithObjectValues(items); // accessory.addItemsWithTitles(items)
-  //accessory.selectItemAtIndex(selectedItemIndex)
-
-  accessory.setEditable(true); //accessory.setCompletes(true)
-
+  accessory.addItemsWithObjectValues(items);
+  accessory.setEditable(true);
   var response = createDialog(msg, info, accessory, buttons);
   var result = accessory.stringValue();
 
@@ -336,12 +335,8 @@ function createCombobox(msg, info, items, selectedItemIndex) {
 }
 function createSelect(msg, info, items, selectedItemIndex) {
   var buttons = ['Apply', 'Cancel'];
-  var accessory = NSPopUpButton.alloc().initWithFrame(NSMakeRect(0, 0, 240, 25)); //accessory.addItemsWithObjectValues(items)
-
-  accessory.addItemsWithTitles(items); //accessory.selectItemAtIndex(selectedItemIndex)
-  // accessory.setEditable(true)
-  //accessory.setCompletes(true)
-
+  var accessory = NSPopUpButton.alloc().initWithFrame(NSMakeRect(0, 0, 240, 25));
+  accessory.addItemsWithTitles(items);
   var response = createDialog(msg, info, accessory, buttons);
   var result = {
     index: accessory.indexOfSelectedItem(),
@@ -380,8 +375,7 @@ function createList(msg, info, items, selectedItemIndex) {
 
     if (confirmed === 1000) {
       states.forEach(function (state, i) {
-        //selection.push(state.title())
-        selection.push(i);
+        return selection.push(i);
       });
       return selection;
     }
