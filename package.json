@@ -5,12 +5,12 @@
   "authorEmail": "o.gunes@gmail.com",
   "homepage": "https://github.com/ozgurgunes/Sketch-Symbol-States",
   "license": "MIT",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/ozgurgunes/Sketch-Symbol-States.git"
   },
-  "bugs": { 
+  "bugs": {
     "url": "https://github.com/ozgurgunes/Sketch-Symbol-States/issues"
   },
   "engines": {
