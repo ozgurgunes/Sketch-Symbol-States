@@ -1,11 +1,10 @@
 import sketch from 'sketch/dom'
 import UI from "sketch/ui"
-import * as defaults from './defaults.js'
 
 var app = NSApplication.sharedApplication()
 
 export function message(message) {
-  UI.message(defaults.PLUGIN_NAME + ": " + message)
+  UI.message(context.plugin.name() + ": " + message)
 }
 
 export function createDialog(message, info, accessory, buttons) {
@@ -76,13 +75,13 @@ export function createList(msg, info, items, selectedItemIndex) {
     var confirmed = createDialog('Are you sure?', 'All symbol states will be deleted!')
     if (confirmed === 1000) {
       states.forEach((state, i) => selection.push(i))
-      return selection
+      return {deletion: "delete all", selection: selection}
     }
   }
   if (response === 1000) {
     states.forEach((state, i) => {
       if (state.state()) { selection.push(i) }
     })
-    return selection
+    return {deletion: "delete", selection: selection}
   }
 }

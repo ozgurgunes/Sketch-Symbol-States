@@ -1,21 +1,22 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
 import * as UI from './ui.js'
-import * as defaults from './defaults.js'
 import analytics from './analytics.js'
 
-var doc = sketch.getSelectedDocument(),
-  libraries = sketch.getLibraries(),
-  selection = doc.selectedLayers
+var doc = sketch.getSelectedDocument()
+var libraries = sketch.getLibraries()
+var selection = doc.selectedLayers
 
 export default function(context) {
   if (selection.length != 1 || selection.layers[0].type != sketch.Types.SymbolInstance) {
-    UI.message("Please select a symbol instance.")
+    analytics(context, "error", "selection")
+    return UI.message("Please select a symbol instance.")
   } else {
-    var symbol = selection.layers[0],
-      states = settings.layerSettingForKey(symbol.master, defaults.PLUGIN_KEY) || []
+    var symbol = selection.layers[0]
+    var states = settings.layerSettingForKey(symbol.master, context.plugin.identifier()) || []
     states.sort((a, b) => a.name - b.name)
     if (states.length < 1) {
+      analytics(context, "error", "no state")
       return UI.createDialog("Set States", "There are not any states.")
     }
     var result = UI.createSelect(
@@ -24,8 +25,8 @@ export default function(context) {
       states.map(state => state.name));
     if (result && (states[result.index])) {
       var stateOverrides = states[result.index].overrides
-      stateOverrides.forEach(stateOverride => {
-        symbol.overrides.forEach(symbolOverride => {
+      stateOverrides.map(stateOverride => {
+        symbol.overrides.map(symbolOverride => {
           if (symbolOverride.editable && symbolOverride.property != "image" &&
             stateOverride.id == symbolOverride.id) {
             var value = valueForOverride(symbol, stateOverride)
@@ -33,8 +34,8 @@ export default function(context) {
           }
         })
       })
-      analytics(context, 'Set State', states[result.index].name)
-      UI.message(states[result.index].name + " activated.")
+      analytics(context, "success", states[result.index].name)
+      return UI.message(states[result.index].name + " activated.")
     }
   }
 }

@@ -1,11 +1,12 @@
 import send from 'sketch-module-google-analytics'
-import * as defaults from './defaults.js'
 
-export default function (context, action, label, value) {
+const GA_TRACKING_ID = "UA-5738625-2"
+
+export default function (context, label, value) {
   const payload = {}
-  payload.ec = defaults.PLUGIN_NAME
-  if (action) { payload.ea = action }
+  payload.ec = context.plugin.name()
+  payload.ea = context.command.name()
   if (label) { payload.el = label }
   if (value) { payload.ev = value }
-  return send(context, defaults.GA_TRACKING_ID, 'event', payload)
+  return send(context, GA_TRACKING_ID, 'event', payload)
 }

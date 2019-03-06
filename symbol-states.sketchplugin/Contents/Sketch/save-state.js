@@ -151,16 +151,12 @@ module.exports = function (context, trackingId, hitType, props) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var sketch_module_google_analytics__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sketch-module-google-analytics */ "./node_modules/sketch-module-google-analytics/index.js");
 /* harmony import */ var sketch_module_google_analytics__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sketch_module_google_analytics__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _defaults_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./defaults.js */ "./src/defaults.js");
 
-
-/* harmony default export */ __webpack_exports__["default"] = (function (context, action, label, value) {
+var GA_TRACKING_ID = "UA-5738625-2";
+/* harmony default export */ __webpack_exports__["default"] = (function (context, label, value) {
   var payload = {};
-  payload.ec = _defaults_js__WEBPACK_IMPORTED_MODULE_1__["PLUGIN_NAME"];
-
-  if (action) {
-    payload.ea = action;
-  }
+  payload.ec = context.plugin.name();
+  payload.ea = context.command.name();
 
   if (label) {
     payload.el = label;
@@ -170,26 +166,8 @@ __webpack_require__.r(__webpack_exports__);
     payload.ev = value;
   }
 
-  return sketch_module_google_analytics__WEBPACK_IMPORTED_MODULE_0___default()(context, _defaults_js__WEBPACK_IMPORTED_MODULE_1__["GA_TRACKING_ID"], 'event', payload);
+  return sketch_module_google_analytics__WEBPACK_IMPORTED_MODULE_0___default()(context, GA_TRACKING_ID, 'event', payload);
 });
-
-/***/ }),
-
-/***/ "./src/defaults.js":
-/*!*************************!*\
-  !*** ./src/defaults.js ***!
-  \*************************/
-/*! exports provided: PLUGIN_NAME, PLUGIN_KEY, GA_TRACKING_ID */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PLUGIN_NAME", function() { return PLUGIN_NAME; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PLUGIN_KEY", function() { return PLUGIN_KEY; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GA_TRACKING_ID", function() { return GA_TRACKING_ID; });
-var PLUGIN_NAME = "Symbol States",
-    PLUGIN_KEY = "com.gunesozgur.sketch.symbol-states",
-    GA_TRACKING_ID = "UA-5738625-2";
 
 /***/ }),
 
@@ -207,25 +185,26 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var sketch_settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! sketch/settings */ "sketch/settings");
 /* harmony import */ var sketch_settings__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(sketch_settings__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _ui_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ui.js */ "./src/ui.js");
-/* harmony import */ var _defaults_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./defaults.js */ "./src/defaults.js");
-/* harmony import */ var _analytics_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./analytics.js */ "./src/analytics.js");
+/* harmony import */ var _analytics_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./analytics.js */ "./src/analytics.js");
 
 
 
 
-
-var doc = sketch_dom__WEBPACK_IMPORTED_MODULE_0___default.a.getSelectedDocument(),
-    libraries = sketch_dom__WEBPACK_IMPORTED_MODULE_0___default.a.getLibraries(),
-    selection = doc.selectedLayers;
+var doc = sketch_dom__WEBPACK_IMPORTED_MODULE_0___default.a.getSelectedDocument();
+var libraries = sketch_dom__WEBPACK_IMPORTED_MODULE_0___default.a.getLibraries();
+var selection = doc.selectedLayers;
 /* harmony default export */ __webpack_exports__["default"] = (function (context) {
+  var eventLabel, message;
+
   if (selection.length != 1 || selection.layers[0].type != sketch_dom__WEBPACK_IMPORTED_MODULE_0___default.a.Types.SymbolInstance) {
-    _ui_js__WEBPACK_IMPORTED_MODULE_2__["message"]("Please select a symbol instance.");
+    Object(_analytics_js__WEBPACK_IMPORTED_MODULE_3__["default"])(context, "error", "selection");
+    return _ui_js__WEBPACK_IMPORTED_MODULE_2__["message"]("Please select a symbol instance.");
   } else {
-    var symbol = selection.layers[0],
-        action = "save",
-        message = " saved.",
-        overrides = [],
-        states = sketch_settings__WEBPACK_IMPORTED_MODULE_1___default.a.layerSettingForKey(symbol.master, _defaults_js__WEBPACK_IMPORTED_MODULE_3__["PLUGIN_KEY"]) || [];
+    eventLabel = "save";
+    message = " saved.";
+    var symbol = selection.layers[0];
+    var overrides = [];
+    var states = sketch_settings__WEBPACK_IMPORTED_MODULE_1___default.a.layerSettingForKey(symbol.master, context.plugin.identifier()) || [];
     states.sort(function (a, b) {
       return a.name - b.name;
     });
@@ -240,16 +219,17 @@ var doc = sketch_dom__WEBPACK_IMPORTED_MODULE_0___default.a.getSelectedDocument(
         var response = _ui_js__WEBPACK_IMPORTED_MODULE_2__["createDialog"]('Are you sure?', 'This will update "' + stateName + '" state.');
 
         if (response != 1000) {
+          Object(_analytics_js__WEBPACK_IMPORTED_MODULE_3__["default"])(context, "cancel", stateName);
           return false;
         }
 
         states = states.filter(function (state) {
           return state.name.toString() != stateName.toString();
         });
-        action = "update", message = " updated.";
+        eventLabel = "update", message = " updated.";
       }
 
-      symbol.overrides.forEach(function (override) {
+      symbol.overrides.map(function (override) {
         if (override.editable && override.property != "image") {
           var stateOverride = {
             id: override.id,
@@ -264,9 +244,9 @@ var doc = sketch_dom__WEBPACK_IMPORTED_MODULE_0___default.a.getSelectedDocument(
         name: stateName,
         overrides: overrides
       });
-      sketch_settings__WEBPACK_IMPORTED_MODULE_1___default.a.setLayerSettingForKey(symbol.master, _defaults_js__WEBPACK_IMPORTED_MODULE_3__["PLUGIN_KEY"], states);
-      Object(_analytics_js__WEBPACK_IMPORTED_MODULE_4__["default"])(context, "Save State", action, stateName);
-      _ui_js__WEBPACK_IMPORTED_MODULE_2__["message"](stateName + message);
+      sketch_settings__WEBPACK_IMPORTED_MODULE_1___default.a.setLayerSettingForKey(symbol.master, context.plugin.identifier(), states);
+      Object(_analytics_js__WEBPACK_IMPORTED_MODULE_3__["default"])(context, eventLabel, stateName);
+      return _ui_js__WEBPACK_IMPORTED_MODULE_2__["message"](stateName + message);
     }
   }
 });
@@ -291,13 +271,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var sketch_dom__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sketch_dom__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var sketch_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! sketch/ui */ "sketch/ui");
 /* harmony import */ var sketch_ui__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(sketch_ui__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _defaults_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./defaults.js */ "./src/defaults.js");
-
 
 
 var app = NSApplication.sharedApplication();
 function message(message) {
-  sketch_ui__WEBPACK_IMPORTED_MODULE_1___default.a.message(_defaults_js__WEBPACK_IMPORTED_MODULE_2__["PLUGIN_NAME"] + ": " + message);
+  sketch_ui__WEBPACK_IMPORTED_MODULE_1___default.a.message(context.plugin.name() + ": " + message);
 }
 function createDialog(message, info, accessory, buttons) {
   var buttons = buttons || ['OK'];
@@ -377,7 +355,10 @@ function createList(msg, info, items, selectedItemIndex) {
       states.forEach(function (state, i) {
         return selection.push(i);
       });
-      return selection;
+      return {
+        deletion: "delete all",
+        selection: selection
+      };
     }
   }
 
@@ -387,7 +368,10 @@ function createList(msg, info, items, selectedItemIndex) {
         selection.push(i);
       }
     });
-    return selection;
+    return {
+      deletion: "delete",
+      selection: selection
+    };
   }
 }
 
