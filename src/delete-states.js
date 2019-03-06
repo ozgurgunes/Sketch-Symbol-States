@@ -19,7 +19,7 @@ export default function(context) {
       analytics(context, "error", "no state")
       return UI.createDialog("Delete States", "There are not any states.")
     }
-    var result = UI.createList(
+    var result = deleteStatesDialog(
       "Delete States",
       "Please select state to be deleted.",
       states.map(state => state.name));
@@ -33,3 +33,24 @@ export default function(context) {
     }
   }
 }
+
+function deleteStatesDialog(msg, info, items) {
+  var buttons = ['Delete', 'Cancel', 'Delete All']
+  var accessory = UI.createList(items)
+  var response = UI.createDialog(msg, info, accessory[0], buttons)
+  var selection = []
+  if (response === 1002) {
+    var confirmed = UI.createDialog('Are you sure?', 'All symbol states will be deleted!')
+    if (confirmed === 1000) {
+      accessory[1].map((state, i) => selection.push(i))
+      return {deletion: "delete all", selection: selection}
+    }
+  }
+  if (response === 1000) {
+    accessory[1].map((state, i) => {
+      if (state.state()) { selection.push(i) }
+    })
+    return {deletion: "delete", selection: selection}
+  }
+}
+

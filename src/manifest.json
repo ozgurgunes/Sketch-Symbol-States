@@ -4,8 +4,9 @@
   "appcast": "https://raw.githubusercontent.com/ozgurgunes/Sketch-Symbol-States/master/.appcast.xml",
   "identifier": "com.gunesozgur.sketch.symbol-states",
   "homepage": "https://github.com/ozgurgunes/Sketch-Symbol-States",
-  "author": "Ozgur Gunes <o.gunes@gmail.com>",
-  "compatibleVersion": 3,
+  "author": "Özgür Güneş",
+  "authorEmail": "o.gunes@gmail.com",
+  "compatibleVersion": 52,
   "bundleVersion": 1,
   "icon": "icon.png",
   "commands": [

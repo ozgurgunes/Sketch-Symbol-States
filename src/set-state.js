@@ -14,15 +14,15 @@ export default function(context) {
   } else {
     var symbol = selection.layers[0]
     var states = settings.layerSettingForKey(symbol.master, context.plugin.identifier()) || []
-    states.sort((a, b) => a.name - b.name)
     if (states.length < 1) {
       analytics(context, "error", "no state")
       return UI.createDialog("Set States", "There are not any states.")
     }
-    var result = UI.createSelect(
+    states.sort((a, b) => a.name - b.name)
+    var result = setStateDialog(
       "Set State",
       "Please select a symbol state.",
-      states.map(state => state.name));
+      states.map(state => state.name))
     if (result && (states[result.index])) {
       var stateOverrides = states[result.index].overrides
       stateOverrides.map(stateOverride => {
@@ -39,6 +39,22 @@ export default function(context) {
     }
   }
 }
+
+function setStateDialog(msg, info, items) {
+  var buttons = ['Apply', 'Cancel']
+  console.log(items)
+  var accessory = UI.createSelect(items)
+  var response = UI.createDialog(msg, info, accessory, buttons)
+  var result = {
+    index: accessory.indexOfSelectedItem(),
+    title: accessory.titleOfSelectedItem()
+  }
+  if (response === 1000) {
+    return result
+  }
+}
+
+
 
 function valueForOverride(symbol, override) {
   var value

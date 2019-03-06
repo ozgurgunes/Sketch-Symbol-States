@@ -200,16 +200,16 @@ var selection = doc.selectedLayers;
   } else {
     var symbol = selection.layers[0];
     var states = sketch_settings__WEBPACK_IMPORTED_MODULE_1___default.a.layerSettingForKey(symbol.master, context.plugin.identifier()) || [];
-    states.sort(function (a, b) {
-      return a.name - b.name;
-    });
 
     if (states.length < 1) {
       Object(_analytics_js__WEBPACK_IMPORTED_MODULE_3__["default"])(context, "error", "no state");
       return _ui_js__WEBPACK_IMPORTED_MODULE_2__["createDialog"]("Set States", "There are not any states.");
     }
 
-    var result = _ui_js__WEBPACK_IMPORTED_MODULE_2__["createSelect"]("Set State", "Please select a symbol state.", states.map(function (state) {
+    states.sort(function (a, b) {
+      return a.name - b.name;
+    });
+    var result = setStateDialog("Set State", "Please select a symbol state.", states.map(function (state) {
       return state.name;
     }));
 
@@ -228,6 +228,21 @@ var selection = doc.selectedLayers;
     }
   }
 });
+
+function setStateDialog(msg, info, items) {
+  var buttons = ['Apply', 'Cancel'];
+  console.log(items);
+  var accessory = _ui_js__WEBPACK_IMPORTED_MODULE_2__["createSelect"](items);
+  var response = _ui_js__WEBPACK_IMPORTED_MODULE_2__["createDialog"](msg, info, accessory, buttons);
+  var result = {
+    index: accessory.indexOfSelectedItem(),
+    title: accessory.titleOfSelectedItem()
+  };
+
+  if (response === 1000) {
+    return result;
+  }
+}
 
 function valueForOverride(symbol, override) {
   var value;
@@ -423,9 +438,13 @@ function createDialog(message, info, accessory, buttons) {
   var alert = NSAlert.alloc().init();
   alert.setMessageText(message);
   alert.setInformativeText(info);
-  buttons.map(function (data) {
-    return alert.addButtonWithTitle(data);
+  buttons.map(function (button) {
+    return alert.addButtonWithTitle(button);
   });
+
+  if (context.plugin.alertIcon()) {
+    alert.icon = context.plugin.alertIcon();
+  }
 
   if (accessory) {
     alert.setAccessoryView(accessory);
@@ -434,86 +453,36 @@ function createDialog(message, info, accessory, buttons) {
 
   return alert.runModal();
 }
-function createCombobox(msg, info, items, selectedItemIndex) {
-  var buttons = ['Save', 'Cancel'];
+function createCombobox(items) {
   var accessory = NSComboBox.alloc().initWithFrame(NSMakeRect(0, 0, 240, 25));
   accessory.addItemsWithObjectValues(items);
   accessory.setEditable(true);
-  var response = createDialog(msg, info, accessory, buttons);
-  var result = accessory.stringValue();
-
-  if (response === 1000) {
-    if (!result.length() > 0) {
-      app.displayDialog("Please give a name to new symbol state");
-      items.shift();
-      return createCombobox(msg, info, items, selectedItemIndex);
-    }
-
-    return result;
-  }
+  accessory.setCompletes(true);
+  return accessory;
 }
-function createSelect(msg, info, items, selectedItemIndex) {
-  var buttons = ['Apply', 'Cancel'];
+function createSelect(items) {
   var accessory = NSPopUpButton.alloc().initWithFrame(NSMakeRect(0, 0, 240, 25));
   accessory.addItemsWithTitles(items);
-  var response = createDialog(msg, info, accessory, buttons);
-  var result = {
-    index: accessory.indexOfSelectedItem(),
-    title: accessory.titleOfSelectedItem()
-  };
-
-  if (response === 1000) {
-    return result;
-  }
+  return accessory;
 }
-function createList(msg, info, items, selectedItemIndex) {
-  items.sort();
-  selectedItemIndex = selectedItemIndex || 0;
-  var buttons = ['Delete', 'Cancel', 'Delete All'];
+function createList(items) {
   var accessory = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 240, 120));
   var scrollView = NSScrollView.alloc().initWithFrame(NSMakeRect(0, 0, 240, 120));
   var scrollContent = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 240, items.length * 24 + 10));
-  var states = [];
-  items.forEach(function (stateName, i) {
-    states[i] = NSButton.alloc().initWithFrame(NSMakeRect(5, 5 + i * 24, 200, 20));
-    states[i].setButtonType(NSSwitchButton);
-    states[i].setTitle(stateName);
-    states[i].setState(false);
-    scrollContent.addSubview(states[i]);
+  var options = [];
+  items.map(function (item, i) {
+    options[i] = NSButton.alloc().initWithFrame(NSMakeRect(5, 5 + i * 24, 200, 20));
+    options[i].setButtonType(NSSwitchButton);
+    options[i].setTitle(item);
+    options[i].setState(false);
+    scrollContent.addSubview(options[i]);
   });
   scrollContent.setFlipped(true);
   scrollView.setHasVerticalScroller(true);
   scrollView.setHasHorizontalScroller(false);
   scrollView.setDocumentView(scrollContent);
   accessory.addSubview(scrollView);
-  var response = createDialog(msg, info, accessory, buttons);
-  var selection = [];
-
-  if (response === 1002) {
-    var confirmed = createDialog('Are you sure?', 'All symbol states will be deleted!');
-
-    if (confirmed === 1000) {
-      states.forEach(function (state, i) {
-        return selection.push(i);
-      });
-      return {
-        deletion: "delete all",
-        selection: selection
-      };
-    }
-  }
-
-  if (response === 1000) {
-    states.forEach(function (state, i) {
-      if (state.state()) {
-        selection.push(i);
-      }
-    });
-    return {
-      deletion: "delete",
-      selection: selection
-    };
-  }
+  return [accessory, options];
 }
 
 /***/ }),

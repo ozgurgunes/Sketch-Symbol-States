@@ -19,7 +19,7 @@ export default function(context) {
     var overrides = []
     var states = settings.layerSettingForKey(symbol.master, context.plugin.identifier()) || []
     states.sort((a, b) => a.name - b.name)
-    var stateName = UI.createCombobox(
+    var stateName = saveStateDialog(
       "State Name",
       "Please give a name to symbol state",
       states.map(state => state.name));
@@ -55,3 +55,18 @@ export default function(context) {
     }
   }
 }
+
+function saveStateDialog(msg, info, items) {
+  var buttons = ['Save', 'Cancel']
+  var accessory = UI.createCombobox(items)
+  var response = UI.createDialog(msg, info, accessory, buttons)
+  var result = accessory.stringValue()
+  if (response === 1000) {
+    if (!result.length() > 0) {
+      analytics(context, "error", "name")
+      return saveStateDialog(msg, info, items)
+    }
+    return result
+  }
+}
+
