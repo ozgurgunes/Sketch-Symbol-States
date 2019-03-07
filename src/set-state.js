@@ -84,7 +84,7 @@ function valueForSymbolOverride(symbol, override) {
         master = library.getDocument().getSymbols()
           .find(master => master.symbolId == override.value)
         if (master) {
-          if (master.getLibrary().getImportableSymbolReferencesForDocument(doc)) {
+          if (master.getLibrary()) {
             importable = master.getLibrary().getImportableSymbolReferencesForDocument(doc)
               .find(importable => importable.name == master.name)
           } else {
@@ -117,7 +117,7 @@ function valueForTextStyleOverride(symbol, override) {
         textStyle = library.getDocument().sharedTextStyles
           .find(style => style.id.includes(id))
         if (textStyle) {
-          if (textStyle.getLibrary().getImportableTextStyleReferencesForDocument(doc)) {
+          if (textStyle.getLibrary()) {
             importable = textStyle.getLibrary().getImportableTextStyleReferencesForDocument(doc)
               .find(importable => importable.name == textStyle.name)
           } else {
@@ -150,7 +150,7 @@ function valueForLayerStyleOverride(symbol, override) {
         layerStyle = library.getDocument().sharedLayerStyles
           .find(style => style.id.includes(id))
         if (layerStyle) {
-          if (layerStyle.getLibrary().getImportableLayerStyleReferencesForDocument(doc)) {
+          if (layerStyle.getLibrary()) {
             importable = layerStyle.getLibrary().getImportableLayerStyleReferencesForDocument(doc)
               .find(importable => importable.name == layerStyle.name)
           } else {
