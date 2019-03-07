@@ -1,8 +1,6 @@
 import sketch from 'sketch/dom'
 import UI from "sketch/ui"
 
-var app = NSApplication.sharedApplication()
-
 export function message(message) {
   UI.message(context.plugin.name() + ": " + message)
 }

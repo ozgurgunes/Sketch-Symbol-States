@@ -15,14 +15,11 @@ export default function(context) {
     var symbol = selection.layers[0]
     var states = settings.layerSettingForKey(symbol.master, context.plugin.identifier()) || []
     if (states.length < 1) {
-      analytics(context, "error", "no state")
+      analytics(context, "error", "states")
       return UI.createDialog("Set States", "There are not any states.")
     }
     states.sort((a, b) => a.name - b.name)
-    var result = setStateDialog(
-      "Set State",
-      "Please select a symbol state.",
-      states.map(state => state.name))
+    var result = setStateDialog(states.map(state => state.name))
     if (result && (states[result.index])) {
       var stateOverrides = states[result.index].overrides
       stateOverrides.map(stateOverride => {
@@ -40,11 +37,12 @@ export default function(context) {
   }
 }
 
-function setStateDialog(msg, info, items) {
+function setStateDialog(items) {
   var buttons = ['Apply', 'Cancel']
-  console.log(items)
+  var message = "Set State"
+  var info = "Please select a symbol state."
   var accessory = UI.createSelect(items)
-  var response = UI.createDialog(msg, info, accessory, buttons)
+  var response = UI.createDialog(message, info, accessory, buttons)
   var result = {
     index: accessory.indexOfSelectedItem(),
     title: accessory.titleOfSelectedItem()
@@ -53,8 +51,6 @@ function setStateDialog(msg, info, items) {
     return result
   }
 }
-
-
 
 function valueForOverride(symbol, override) {
   var value
@@ -76,33 +72,26 @@ function valueForOverride(symbol, override) {
 function valueForSymbolOverride(symbol, override) {
   var master = doc.getSymbolMasterWithID(override.value)
   if (master) {
-    //console.log("'SYMBOL FOUND': %o", master.name)
     return master.symbolId
   } else {
     var library = symbol.master.getLibrary()
     if (library) {
-      //console.log("'LOOKING TO SYMBOL LIBRARY': %o", library.name)
       var importable = library.getImportableSymbolReferencesForDocument(doc)
         .find(importable => importable.id == override.value)
       if (importable) {
-        // console.log("'IMPORTING SYMBOL': %o", importable.name)
         return importable.import().symbolId
       } else {
         master = library.getDocument().getSymbols()
           .find(master => master.symbolId == override.value)
         if (master) {
-          //console.log("'OVERRIDE MASTER FOUND': %o", master.name)
-          if (master.getLibrary()) {
-            //console.log("'LOOKING TO OVERRIDES LIBRARY': %o", master.getLibrary().name)
+          if (master.getLibrary().getImportableSymbolReferencesForDocument(doc)) {
             importable = master.getLibrary().getImportableSymbolReferencesForDocument(doc)
               .find(importable => importable.name == master.name)
           } else {
-            //console.log("'LOOKING TO SYMBOLS LIBRARY': %o", library.name)
             importable = library.getImportableSymbolReferencesForDocument(doc)
               .find(importable => importable.name == master.name)
           }
           if (importable) {
-            //console.log("'IMPORTING SYMBOL': %o", importable.name)
             return importable.import().symbolId
           }
         }
@@ -116,23 +105,19 @@ function valueForTextStyleOverride(symbol, override) {
   var textStyle = doc.getSharedTextStyleWithID(override.value) ||
     doc.getSharedTextStyleWithID(id)
   if (textStyle) {
-    //console.log("'TEXT STYLE FUND': %o", textStyle.name)
     return textStyle.id
   } else {
     var library = symbol.master.getLibrary()
     if (library) {
-      //console.log("'LOOKING TO TEXT STYLE LIBRARY': %o", library.name)
       var importable = library.getImportableTextStyleReferencesForDocument(doc)
         .find(importable => importable.id.includes(id))
       if (importable) {
-        //console.log("'IMPORTING TEXT STYLE': %o", importable.name)
         return importable.import().id
       } else {
         textStyle = library.getDocument().sharedTextStyles
           .find(style => style.id.includes(id))
         if (textStyle) {
-          //console.log("'LOOKING FOR TEXT STYLE': %o", textStyle.name)
-          if (textStyle.getLibrary()) {
+          if (textStyle.getLibrary().getImportableTextStyleReferencesForDocument(doc)) {
             importable = textStyle.getLibrary().getImportableTextStyleReferencesForDocument(doc)
               .find(importable => importable.name == textStyle.name)
           } else {
@@ -140,7 +125,6 @@ function valueForTextStyleOverride(symbol, override) {
               .find(importable => importable.name == textStyle.name)
           }
           if (importable) {
-            //console.log("'IMPORTING TEXT STYLE': %o", importable.name)
             return importable.import().id
           }
         }
@@ -154,7 +138,6 @@ function valueForLayerStyleOverride(symbol, override) {
   var layerStyle = doc.getSharedLayerStyleWithID(override.value) ||
     doc.getSharedLayerStyleWithID(id)
   if (layerStyle) {
-    //console.log("'LAYER STYLE FUND': %o", layerStyle.name)
     return layerStyle.id
   } else {
     var library = symbol.master.getLibrary()
@@ -162,14 +145,12 @@ function valueForLayerStyleOverride(symbol, override) {
       var importable = library.getImportableLayerStyleReferencesForDocument(doc)
         .find(importable => importable.id.includes(id))
       if (importable) {
-        //console.log("'IMPORTING LAYER STYLE': %o", importable.name)
         return importable.import().id
       } else {
         layerStyle = library.getDocument().sharedLayerStyles
           .find(style => style.id.includes(id))
         if (layerStyle) {
-          //console.log("'LOOKING FOR LAYER STYLE': %o", layerStyle.name)
-          if (layerStyle.getLibrary()) {
+          if (layerStyle.getLibrary().getImportableLayerStyleReferencesForDocument(doc)) {
             importable = layerStyle.getLibrary().getImportableLayerStyleReferencesForDocument(doc)
               .find(importable => importable.name == layerStyle.name)
           } else {
@@ -177,7 +158,6 @@ function valueForLayerStyleOverride(symbol, override) {
               .find(importable => importable.name == layerStyle.name)
           }
           if (importable) {
-            //console.log("'IMPORTING LAYER STYLE': %o", importable.name)
             return importable.import().id
           }
         }

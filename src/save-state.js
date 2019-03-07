@@ -7,7 +7,7 @@ var doc = sketch.getSelectedDocument()
 var libraries = sketch.getLibraries()
 var selection = doc.selectedLayers
 
-export default function(context) {
+var saveState = function(context) {
   var eventLabel, message
   if (selection.length != 1 || selection.layers[0].type != sketch.Types.SymbolInstance) {
     analytics(context, "error", "selection")
@@ -19,16 +19,12 @@ export default function(context) {
     var overrides = []
     var states = settings.layerSettingForKey(symbol.master, context.plugin.identifier()) || []
     states.sort((a, b) => a.name - b.name)
-    var stateName = saveStateDialog(
-      "State Name",
-      "Please give a name to symbol state",
-      states.map(state => state.name));
+    var stateName = saveStateDialog(states.map(state => state.name));
     if (stateName) {
       if (states.some(state => state.name == stateName)) {
-        var response = UI.createDialog('Are you sure?', 'This will update "' + stateName + '" state.');
+        var response = updateStateDialog(stateName);
         if (response != 1000) {
-          analytics(context, "cancel", stateName)
-          return false;
+          return saveState(context);
         }
         states = states.filter(state => state.name.toString() != stateName.toString())
         eventLabel = "update",
@@ -56,17 +52,26 @@ export default function(context) {
   }
 }
 
-function saveStateDialog(msg, info, items) {
+export default saveState
+
+function saveStateDialog(items) {
   var buttons = ['Save', 'Cancel']
+  var message = "Save State"
+  var info = "Please give a name to symbol state"
   var accessory = UI.createCombobox(items)
-  var response = UI.createDialog(msg, info, accessory, buttons)
+  var response = UI.createDialog(message, info, accessory, buttons)
   var result = accessory.stringValue()
   if (response === 1000) {
     if (!result.length() > 0) {
-      analytics(context, "error", "name")
-      return saveStateDialog(msg, info, items)
+      return saveStateDialog(items)
     }
     return result
   }
 }
 
+function updateStateDialog(stateName) {
+  var buttons = ['Update', 'Cancel']
+  var message = "Are you sure?"
+  var info = 'This will update "' + stateName + '" state.'
+  return UI.createDialog(message, info, null, buttons)
+}

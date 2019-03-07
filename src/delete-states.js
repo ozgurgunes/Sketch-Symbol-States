@@ -16,13 +16,10 @@ export default function(context) {
     var states = settings.layerSettingForKey(symbol.master, context.plugin.identifier()) || []
     states.sort((a, b) => a.name - b.name)
     if (states.length < 1) {
-      analytics(context, "error", "no state")
+      analytics(context, "error", "states")
       return UI.createDialog("Delete States", "There are not any states.")
     }
-    var result = deleteStatesDialog(
-      "Delete States",
-      "Please select state to be deleted.",
-      states.map(state => state.name));
+    var result = deleteStatesDialog(states.map(state => state.name));
     if (result) {
       result.selection.reverse().map(item => {
         states.splice(item, 1)
@@ -34,13 +31,15 @@ export default function(context) {
   }
 }
 
-function deleteStatesDialog(msg, info, items) {
+function deleteStatesDialog(items) {
   var buttons = ['Delete', 'Cancel', 'Delete All']
+  var message = "Delete States"
+  var info = "Please select state to be deleted."
   var accessory = UI.createList(items)
-  var response = UI.createDialog(msg, info, accessory[0], buttons)
+  var response = UI.createDialog(message, info, accessory[0], buttons)
   var selection = []
   if (response === 1002) {
-    var confirmed = UI.createDialog('Are you sure?', 'All symbol states will be deleted!')
+    var confirmed = deleteAllDialog()
     if (confirmed === 1000) {
       accessory[1].map((state, i) => selection.push(i))
       return {deletion: "delete all", selection: selection}
@@ -52,5 +51,12 @@ function deleteStatesDialog(msg, info, items) {
     })
     return {deletion: "delete", selection: selection}
   }
+}
+
+function deleteAllDialog() {
+  var buttons = ['Delete All', 'Cancel']
+  var message = "Are you sure?"
+  var info = "All symbol states will be deleted!"
+  return UI.createDialog(message, info, null, buttons)
 }
 

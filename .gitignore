@@ -1,8 +1,5 @@
-# dev tools
-dev
-
 # build artifacts
-# symbol-states.sketchplugin
+symbol-states.sketchplugin
 
 # npm
 node_modules
