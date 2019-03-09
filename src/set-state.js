@@ -7,42 +7,58 @@ var doc = sketch.getSelectedDocument()
 var libraries = sketch.getLibraries()
 var selection = doc.selectedLayers
 
+const COMMAND = context.command.name()
+
 export default function(context) {
-  if (selection.length != 1 || selection.layers[0].type != sketch.Types.SymbolInstance) {
+  if (selection.length != 1 ||
+    selection.layers[0].type != sketch.Types.SymbolInstance) {
     analytics(context, "error", "selection")
     return UI.message("Please select a symbol instance.")
   } else {
     var symbol = selection.layers[0]
-    var states = settings.layerSettingForKey(symbol.master, context.plugin.identifier()) || []
+    var states = settings
+      .layerSettingForKey(symbol.master, context.plugin.identifier()) || []
     if (states.length < 1) {
       analytics(context, "error", "states")
-      return UI.createDialog("Set States", "There are not any states.")
+      return UI.dialog(COMMAND, "There are not any states.")
     }
-    states.sort((a, b) => a.name - b.name)
-    var result = setStateDialog(states.map(state => state.name))
+    var result = setStateDialog(states
+      .sort((a, b) => a.name - b.name)
+      .map(state => state.name))
     if (result && (states[result.index])) {
+      var stateName = states[result.index].name
       var stateOverrides = states[result.index].overrides
+      var value, errors = []
       stateOverrides.map(stateOverride => {
         symbol.overrides.map(symbolOverride => {
-          if (symbolOverride.editable && symbolOverride.property != "image" &&
+          if (symbolOverride.editable &&
+            symbolOverride.property != "image" &&
             stateOverride.id == symbolOverride.id) {
-            var value = valueForOverride(symbol, stateOverride)
+            try {
+              value = valueForOverride(symbol, stateOverride)
+            } catch (e) {
+              errors.push(symbolOverride)
+            }
             symbol.setOverrideValue(symbolOverride, (value) ? value : "")
           }
         })
       })
-      analytics(context, "success", states[result.index].name)
-      return UI.message(states[result.index].name + " activated.")
+      if (errors.length > 0) {
+        analytics(context, "error", "import")
+        return errorDialog(symbol, stateName, errors)
+      }
+      analytics(context, "success", stateName)
+      return UI.message(stateName + " state set.")
     }
   }
 }
 
 function setStateDialog(items) {
   var buttons = ['Apply', 'Cancel']
-  var message = "Set State"
+  var message = COMMAND
   var info = "Please select a symbol state."
-  var accessory = UI.createSelect(items)
-  var response = UI.createDialog(message, info, accessory, buttons)
+  var accessory = UI.select(items)
+  var response = UI.dialog(message, info, accessory, buttons)
   var result = {
     index: accessory.indexOfSelectedItem(),
     title: accessory.titleOfSelectedItem()
@@ -50,6 +66,47 @@ function setStateDialog(items) {
   if (response === 1000) {
     return result
   }
+}
+
+function errorDialog(symbol, stateName, overrides) {
+  var message = COMMAND
+  var info = stateName + " set but some overrides could not be found:"
+
+  var errorList = getErrorList(symbol, overrides)
+
+  var accessory = NSTextView.alloc().initWithFrame(NSMakeRect(0, 0, 280, 25))
+  var font = NSFont.systemFontOfSize(NSFont.smallSystemFontSize())
+  var text = NSString.alloc().initWithString(errorList + "\n")
+  accessory.insertText(text)
+  accessory.setFont(font)
+  accessory.setEditable(false)
+  accessory.setDrawsBackground(false)
+  UI.dialog(message, info, accessory)
+  context.document.reloadInspector()
+}
+
+function getErrorList(symbol, overrides) {
+  var properties = {
+    "textStyle": "Text Style",
+    "layerStyle": "Layer Style",
+    "symbolID": "Symbol",
+    "stringValue": "Text",
+    "image": "Image"
+  }
+  return overrides.map(override => {
+    var layers = override.path.split("/")
+    var error = []
+    layers.map((layer, i) => {
+      error.push(symbol.overrides.find(symbolOverride => {
+        return symbolOverride.path == layers.slice(0, i + 1).join("/")
+      }).affectedLayer.name)
+    })
+    var path = error.join(" > ")
+    if (path.length > 32) {
+      path = "..." + error.join(" > ").slice(-32)
+    }
+    return "• " + properties[override.property] + ":  " + path
+  }).join("\n")
 }
 
 function valueForOverride(symbol, override) {
@@ -85,7 +142,8 @@ function valueForSymbolOverride(symbol, override) {
           .find(master => master.symbolId == override.value)
         if (master) {
           if (master.getLibrary()) {
-            importable = master.getLibrary().getImportableSymbolReferencesForDocument(doc)
+            importable = master.getLibrary()
+              .getImportableSymbolReferencesForDocument(doc)
               .find(importable => importable.name == master.name)
           } else {
             importable = library.getImportableSymbolReferencesForDocument(doc)
@@ -109,7 +167,8 @@ function valueForTextStyleOverride(symbol, override) {
   } else {
     var library = symbol.master.getLibrary()
     if (library) {
-      var importable = library.getImportableTextStyleReferencesForDocument(doc)
+      var importable = library
+        .getImportableTextStyleReferencesForDocument(doc)
         .find(importable => importable.id.includes(id))
       if (importable) {
         return importable.import().id
@@ -118,10 +177,12 @@ function valueForTextStyleOverride(symbol, override) {
           .find(style => style.id.includes(id))
         if (textStyle) {
           if (textStyle.getLibrary()) {
-            importable = textStyle.getLibrary().getImportableTextStyleReferencesForDocument(doc)
+            importable = textStyle.getLibrary()
+              .getImportableTextStyleReferencesForDocument(doc)
               .find(importable => importable.name == textStyle.name)
           } else {
-            importable = library.getImportableTextStyleReferencesForDocument(doc)
+            importable = library
+              .getImportableTextStyleReferencesForDocument(doc)
               .find(importable => importable.name == textStyle.name)
           }
           if (importable) {
@@ -142,7 +203,8 @@ function valueForLayerStyleOverride(symbol, override) {
   } else {
     var library = symbol.master.getLibrary()
     if (library) {
-      var importable = library.getImportableLayerStyleReferencesForDocument(doc)
+      var importable = library
+        .getImportableLayerStyleReferencesForDocument(doc)
         .find(importable => importable.id.includes(id))
       if (importable) {
         return importable.import().id
@@ -151,10 +213,12 @@ function valueForLayerStyleOverride(symbol, override) {
           .find(style => style.id.includes(id))
         if (layerStyle) {
           if (layerStyle.getLibrary()) {
-            importable = layerStyle.getLibrary().getImportableLayerStyleReferencesForDocument(doc)
+            importable = layerStyle.getLibrary()
+              .getImportableLayerStyleReferencesForDocument(doc)
               .find(importable => importable.name == layerStyle.name)
           } else {
-            importable = library.getImportableLayerStyleReferencesForDocument(doc)
+            importable = library
+              .getImportableLayerStyleReferencesForDocument(doc)
               .find(importable => importable.name == layerStyle.name)
           }
           if (importable) {

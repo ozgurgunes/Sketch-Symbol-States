@@ -5,7 +5,7 @@ export function message(message) {
   UI.message(context.plugin.name() + ": " + message)
 }
 
-export function createDialog(message, info, accessory, buttons) {
+export function dialog(message, info, accessory, buttons) {
   var buttons = buttons || ['OK']
   var alert = NSAlert.alloc().init()
   alert.setMessageText(message)
@@ -16,32 +16,39 @@ export function createDialog(message, info, accessory, buttons) {
   }
   if (accessory) {
     alert.setAccessoryView(accessory)
-    alert.window().setInitialFirstResponder(accessory)
+    if (!accessory.isMemberOfClass(NSTextView)) {
+      alert.window().setInitialFirstResponder(accessory)
+    }
   }
   return alert.runModal()
 }
 
-export function createCombobox(items) {
-  var accessory = NSComboBox.alloc().initWithFrame(NSMakeRect(0, 0, 240, 25))
+export function combobox(items) {
+  var accessory = NSComboBox.alloc()
+    .initWithFrame(NSMakeRect(0, 0, 240, 25))
   accessory.addItemsWithObjectValues(items)
   accessory.setEditable(true)
   accessory.setCompletes(true)
   return accessory
 }
 
-export function createSelect(items) {
-  var accessory = NSPopUpButton.alloc().initWithFrame(NSMakeRect(0, 0, 240, 25))
+export function select(items) {
+  var accessory = NSPopUpButton.alloc()
+    .initWithFrame(NSMakeRect(0, 0, 240, 25))
   accessory.addItemsWithTitles(items)
   return accessory
 }
 
-export function createList(items) {
+export function list(items) {
   var accessory = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 240, 120))
-  var scrollView = NSScrollView.alloc().initWithFrame(NSMakeRect(0, 0, 240, 120))
-  var scrollContent = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 240, items.length * 24 + 10))
+  var scrollView = NSScrollView.alloc()
+    .initWithFrame(NSMakeRect(0, 0, 240, 120))
+  var scrollContent = NSView.alloc()
+    .initWithFrame(NSMakeRect(0, 0, 240, items.length * 24 + 10))
   var options = [];
   items.map((item, i) => {
-    options[i] = NSButton.alloc().initWithFrame(NSMakeRect(5, 5 + i * 24, 200, 20));
+    options[i] = NSButton.alloc()
+      .initWithFrame(NSMakeRect(5, 5 + i * 24, 200, 20));
     options[i].setButtonType(NSSwitchButton);
     options[i].setTitle(item);
     options[i].setState(false);
