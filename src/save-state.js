@@ -7,20 +7,18 @@ var doc = sketch.getSelectedDocument(),
   libraries = sketch.getLibraries(),
   selection = doc.selectedLayers
 
-var saveState = function(context) {
+const saveState = context => {
   if (selection.length != 1 ||
     selection.layers[0].type != sketch.Types.SymbolInstance) {
     analytics(context, "error", "selection")
     return UI.message("Please select a symbol instance.")
   } else {
-    var eventLabel = "save"
-    var message = " saved."
+    var eventLabel = "save", message = " saved."
     var symbol = selection.layers[0]
     var states = settings
       .layerSettingForKey(symbol.master, context.plugin.identifier()) || []
-    var stateName = saveStateDialog(states
-      .sort((a, b) => a.name - b.name)
-      .map(state => state.name))
+    states.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase())
+    var stateName = saveStateDialog(states.map(state => state.name))
     if (stateName) {
       var stateOverride, overrides = []
       if (states.some(state => state.name == stateName)) {
@@ -28,10 +26,8 @@ var saveState = function(context) {
         if (response != 1000) {
           return saveState(context);
         }
-        states = states
-          .filter(state => state.name.toString() != stateName.toString())
-        eventLabel = "update",
-          message = " updated."
+        states.splice(states.map(state => state.name).indexOf(stateName),1)
+        eventLabel = "update", message = " updated."
       }
       symbol.overrides.map(override => {
           if (override.editable && override.property != "image") {
@@ -58,10 +54,10 @@ var saveState = function(context) {
 
 export default saveState
 
-function saveStateDialog(items) {
+const saveStateDialog = items => {
   var buttons = ['Save', 'Cancel']
-  var message = "Save State"
-  var info = "Please give a name to symbol state"
+  var message = context.command.name()
+  var info = "Please give a name to symbol state."
   var accessory = UI.combobox(items)
   var response = UI.dialog(message, info, accessory, buttons)
   var result = accessory.stringValue()
@@ -73,7 +69,7 @@ function saveStateDialog(items) {
   }
 }
 
-function updateStateDialog(stateName) {
+const updateStateDialog = stateName => {
   var buttons = ['Update', 'Cancel']
   var message = "Are you sure?"
   var info = 'This will update "' + stateName + '" state.'

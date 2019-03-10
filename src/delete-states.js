@@ -3,11 +3,11 @@ import settings from 'sketch/settings'
 import * as UI from './ui.js'
 import analytics from './analytics.js'
 
-var doc = sketch.getSelectedDocument()
-var libraries = sketch.getLibraries()
-var selection = doc.selectedLayers
+var doc = sketch.getSelectedDocument(),
+  libraries = sketch.getLibraries(),
+  selection = doc.selectedLayers
 
-export default function(context) {
+export default context => {
   if (selection.length != 1 ||
     selection.layers[0].type != sketch.Types.SymbolInstance) {
     analytics(context, "error", "selection")
@@ -20,9 +20,8 @@ export default function(context) {
       analytics(context, "error", "states")
       return UI.dialog("Delete States", "There are not any states.")
     }
-    var result = deleteStatesDialog(states
-      .sort((a, b) => a.name - b.name)
-      .map(state => state.name))
+    states.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase())    
+    var result = deleteStatesDialog(states.map(state => state.name))
     if (result) {
       result.selection.reverse().map(item => states.splice(item, 1))
       settings.setLayerSettingForKey(symbol.master,
@@ -33,7 +32,7 @@ export default function(context) {
   }
 }
 
-function deleteStatesDialog(items) {
+const deleteStatesDialog = items => {
   var buttons = ['Delete', 'Cancel', 'Delete All']
   var message = "Delete States"
   var info = "Please select state to be deleted."
@@ -63,7 +62,7 @@ function deleteStatesDialog(items) {
   }
 }
 
-function deleteAllDialog() {
+const deleteAllDialog = () => {
   var buttons = ['Delete All', 'Cancel']
   var message = "Are you sure?"
   var info = "All symbol states will be deleted!"

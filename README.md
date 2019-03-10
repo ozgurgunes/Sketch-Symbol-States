@@ -1,4 +1,4 @@
-# Sketch Symbol States
+# Sketch Symbol States  [![GitHub release](https://img.shields.io/github/release/ozgurgunes/Sketch-Symbol-States.svg?label=Download%20Latest)](https://github.com/ozgurgunes/Sketch-Symbol-States/releases/latest/download/symbol-states.sketchplugin.zip)
 
 Symbol States plugin for Sketch, saves overrides of a symbol instance as states, which could be applied on any instance of that symbol later.
 

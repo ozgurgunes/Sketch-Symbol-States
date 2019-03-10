@@ -3,13 +3,13 @@ import settings from 'sketch/settings'
 import * as UI from './ui.js'
 import analytics from './analytics.js'
 
-var doc = sketch.getSelectedDocument()
-var libraries = sketch.getLibraries()
-var selection = doc.selectedLayers
+var doc = sketch.getSelectedDocument(),
+  libraries = sketch.getLibraries(),
+  selection = doc.selectedLayers
 
 const COMMAND = context.command.name()
 
-export default function(context) {
+export default context => {
   if (selection.length != 1 ||
     selection.layers[0].type != sketch.Types.SymbolInstance) {
     analytics(context, "error", "selection")
@@ -22,9 +22,8 @@ export default function(context) {
       analytics(context, "error", "states")
       return UI.dialog(COMMAND, "There are not any states.")
     }
-    var result = setStateDialog(states
-      .sort((a, b) => a.name - b.name)
-      .map(state => state.name))
+    states.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase())    
+    var result = setStateDialog(states.map(state => state.name))
     if (result && (states[result.index])) {
       var stateName = states[result.index].name
       var stateOverrides = states[result.index].overrides
@@ -53,7 +52,7 @@ export default function(context) {
   }
 }
 
-function setStateDialog(items) {
+const setStateDialog = items => {
   var buttons = ['Apply', 'Cancel']
   var message = COMMAND
   var info = "Please select a symbol state."
@@ -68,9 +67,9 @@ function setStateDialog(items) {
   }
 }
 
-function errorDialog(symbol, stateName, overrides) {
+const errorDialog = (symbol, stateName, overrides) => {
   var message = COMMAND
-  var info = stateName + " set but some overrides could not be found:"
+  var info = stateName + " state set but some overrides could not be found:"
 
   var errorList = getErrorList(symbol, overrides)
 
@@ -85,7 +84,7 @@ function errorDialog(symbol, stateName, overrides) {
   context.document.reloadInspector()
 }
 
-function getErrorList(symbol, overrides) {
+const getErrorList = (symbol, overrides) => {
   var properties = {
     "textStyle": "Text Style",
     "layerStyle": "Layer Style",
@@ -109,7 +108,7 @@ function getErrorList(symbol, overrides) {
   }).join("\n")
 }
 
-function valueForOverride(symbol, override) {
+const valueForOverride = (symbol, override) => {
   var value
   switch (true) {
     case (override.property == "symbolID"):
@@ -125,8 +124,7 @@ function valueForOverride(symbol, override) {
   return (value) ? value : override.value
 }
 
-
-function valueForSymbolOverride(symbol, override) {
+const valueForSymbolOverride = (symbol, override) => {
   var master = doc.getSymbolMasterWithID(override.value)
   if (master) {
     return master.symbolId
@@ -158,7 +156,7 @@ function valueForSymbolOverride(symbol, override) {
   }
 }
 
-function valueForTextStyleOverride(symbol, override) {
+const valueForTextStyleOverride = (symbol, override) => {
   var id = getStyleID(override.value)
   var textStyle = doc.getSharedTextStyleWithID(override.value) ||
     doc.getSharedTextStyleWithID(id)
@@ -194,7 +192,7 @@ function valueForTextStyleOverride(symbol, override) {
   }
 }
 
-function valueForLayerStyleOverride(symbol, override) {
+const valueForLayerStyleOverride = (symbol, override) => {
   var id = getStyleID(override.value)
   var layerStyle = doc.getSharedLayerStyleWithID(override.value) ||
     doc.getSharedLayerStyleWithID(id)
@@ -230,7 +228,7 @@ function valueForLayerStyleOverride(symbol, override) {
   }
 }
 
-function getStyleID(value) {
+const getStyleID = value => {
   var matches = value.match(/\[(.*?)\]/)
   return (matches) ? matches[1] : value
 }

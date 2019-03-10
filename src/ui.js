@@ -1,11 +1,11 @@
 import sketch from 'sketch/dom'
 import UI from "sketch/ui"
 
-export function message(message) {
-  UI.message(context.plugin.name() + ": " + message)
+export const message = message => {
+  UI.message(context.command.name() + ": " + message)
 }
 
-export function dialog(message, info, accessory, buttons) {
+export const dialog = (message, info, accessory, buttons) => {
   var buttons = buttons || ['OK']
   var alert = NSAlert.alloc().init()
   alert.setMessageText(message)
@@ -23,7 +23,7 @@ export function dialog(message, info, accessory, buttons) {
   return alert.runModal()
 }
 
-export function combobox(items) {
+export const combobox = items => {
   var accessory = NSComboBox.alloc()
     .initWithFrame(NSMakeRect(0, 0, 240, 25))
   accessory.addItemsWithObjectValues(items)
@@ -32,14 +32,14 @@ export function combobox(items) {
   return accessory
 }
 
-export function select(items) {
+export const select = items => {
   var accessory = NSPopUpButton.alloc()
     .initWithFrame(NSMakeRect(0, 0, 240, 25))
   accessory.addItemsWithTitles(items)
   return accessory
 }
 
-export function list(items) {
+export const list = items => {
   var accessory = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 240, 120))
   var scrollView = NSScrollView.alloc()
     .initWithFrame(NSMakeRect(0, 0, 240, 120))

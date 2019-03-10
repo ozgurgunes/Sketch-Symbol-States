@@ -2,7 +2,7 @@ import send from 'sketch-module-google-analytics'
 
 const GA_TRACKING_ID = "UA-5738625-2"
 
-export default function (context, label, value) {
+export default (context, label, value) => {
   const payload = {}
   payload.ec = context.plugin.name()
   payload.ea = context.command.name()
