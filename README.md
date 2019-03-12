@@ -1,8 +1,8 @@
-# Sketch Symbol States  [![GitHub release](https://img.shields.io/github/release/ozgurgunes/Sketch-Symbol-States.svg?label=Download%20Latest)](https://github.com/ozgurgunes/Sketch-Symbol-States/releases/latest/download/symbol-states.sketchplugin.zip)
+# Sketch Symbol States  [![GitHub release](https://img.shields.io/github/release/ozgurgunes/Sketch-Symbol-States.svg?label=Download)](https://github.com/ozgurgunes/Sketch-Symbol-States/releases/latest/download/symbol-states.sketchplugin.zip)
 
 Symbol States plugin for Sketch, saves overrides of a symbol instance as states, which could be applied on any instance of that symbol later.
 
-**Note:** Image overrides are not supported yet.
+The plugin does not support image overrides natively. Still you can use the plugin with images by making symbols or styles.
 
 ## Installation
 
@@ -40,7 +40,3 @@ To delete states of selected symbol;
 * Check states which you want to delete (Click ```Delete All``` if you want to delete all states).
 * Click ```Delete```.
 
-#### TODO:
-
-* Save and set image overrides.
-* An option to save state to library if this is an imported symbol.

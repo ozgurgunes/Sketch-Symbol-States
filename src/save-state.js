@@ -1,66 +1,75 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
 import * as UI from './ui.js'
-import analytics from './analytics.js'
+import {
+  getSymbol,
+  getStates,
+  analytics
+} from './utils.js'
 
 var doc = sketch.getSelectedDocument(),
   libraries = sketch.getLibraries(),
   selection = doc.selectedLayers
 
 const saveState = context => {
-  if (selection.length != 1 ||
-    selection.layers[0].type != sketch.Types.SymbolInstance) {
-    analytics(context, "error", "selection")
-    return UI.message("Please select a symbol instance.")
-  } else {
-    var eventLabel = "save", message = " saved."
-    var symbol = selection.layers[0]
-    var states = settings
-      .layerSettingForKey(symbol.master, context.plugin.identifier()) || []
-    states.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase())
-    var stateName = saveStateDialog(states.map(state => state.name))
+  try {
+    let symbol = getSymbol(selection),
+      states = getStates(symbol),
+      stateName = saveStateDialog(states.map(state => state.name))
     if (stateName) {
-      var stateOverride, overrides = []
       if (states.some(state => state.name == stateName)) {
-        var response = updateStateDialog(stateName);
+        let response = updateStateDialog(stateName);
         if (response != 1000) {
           return saveState(context);
         }
-        states.splice(states.map(state => state.name).indexOf(stateName),1)
-        eventLabel = "update", message = " updated."
-      }
-      symbol.overrides.map(override => {
-          if (override.editable && override.property != "image") {
-            stateOverride = {
-              id: override.id,
-              property: override.property,
-              value: override.value
-            }
-            overrides.push(stateOverride)
-          }
+        let i = states.findIndex(state => state.name == stateName)
+        states[i].overrides = getSymbolOverrides(symbol)
+        settings.setLayerSettingForKey(symbol.master,
+          context.plugin.identifier(), states)
+        analytics("Update", true)
+        return UI.message(stateName + " updated.")
+      } else {
+        states.push({
+          name: stateName,
+          overrides: getSymbolOverrides(symbol)
         })
-        // TODO: Option to save state to library if this is an imported symbol.
-      states.push({
-        name: stateName,
-        overrides: overrides
-      })
-      settings.setLayerSettingForKey(symbol.master,
-        context.plugin.identifier(), states)
-      analytics(context, eventLabel, stateName)
-      return UI.message(stateName + message)
+        settings.setLayerSettingForKey(symbol.master,
+          context.plugin.identifier(), states)
+        analytics("Save", true)
+        return UI.message(stateName + " updated.")
+      }
     }
+  } catch (e) {
+    console.log(e)
+    return e
   }
 }
 
 export default saveState
 
+const getSymbolOverrides = symbol => {
+  let stateOverride, overrides = []
+  symbol.overrides.map(override => {
+    if (override.editable && override.property != "image") {
+      stateOverride = {
+        id: override.id,
+        property: override.property,
+        value: override.value
+      }
+      overrides.push(stateOverride)
+    }
+  })
+  return overrides
+}
+
+
 const saveStateDialog = items => {
-  var buttons = ['Save', 'Cancel']
-  var message = context.command.name()
-  var info = "Please give a name to symbol state."
-  var accessory = UI.combobox(items)
-  var response = UI.dialog(message, info, accessory, buttons)
-  var result = accessory.stringValue()
+  let buttons = ['Save', 'Cancel'],
+    message = context.command.name(),
+    info = "Please give a name to symbol state.",
+    accessory = UI.comboBox(items),
+    response = UI.dialog(message, info, accessory, buttons),
+    result = accessory.stringValue()
   if (response === 1000) {
     if (!result.length() > 0) {
       return saveStateDialog(items)
@@ -70,8 +79,8 @@ const saveStateDialog = items => {
 }
 
 const updateStateDialog = stateName => {
-  var buttons = ['Update', 'Cancel']
-  var message = "Are you sure?"
-  var info = 'This will update "' + stateName + '" state.'
+  let buttons = ['Update', 'Cancel'],
+    message = "Are you sure?",
+    info = 'This will update "' + stateName + '" state.'
   return UI.dialog(message, info, null, buttons)
 }

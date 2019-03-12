@@ -1,70 +1,65 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
 import * as UI from './ui.js'
-import analytics from './analytics.js'
+import {
+  getSymbol,
+  getStates,
+  analytics
+} from './utils.js'
 
 var doc = sketch.getSelectedDocument(),
   libraries = sketch.getLibraries(),
   selection = doc.selectedLayers
 
 export default context => {
-  if (selection.length != 1 ||
-    selection.layers[0].type != sketch.Types.SymbolInstance) {
-    analytics(context, "error", "selection")
-    return UI.message("Please select a symbol instance.")
-  } else {
-    var symbol = selection.layers[0]
-    var states = settings
-      .layerSettingForKey(symbol.master, context.plugin.identifier()) || []
-    if (states.length < 1) {
-      analytics(context, "error", "states")
-      return UI.dialog("Delete States", "There are not any states.")
+  try {
+    let symbol = getSymbol(selection),
+      states = getStates(symbol, true),
+      list = UI.optionList(states.map(state => state.name)),
+      accessory = UI.scrollView(list.view),
+      response = deleteStatesDialog(accessory),
+      selected = []
+    if (response === 1002) {
+      let confirmed = deleteAllDialog()
+      if (confirmed === 1000) {
+        settings.setLayerSettingForKey(symbol.master,
+          context.plugin.identifier(), [])
+        analytics("Delete All", states.length)
+        return UI.message("All " + states.length + " states deleted.")
+      }
     }
-    states.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase())    
-    var result = deleteStatesDialog(states.map(state => state.name))
-    if (result) {
-      result.selection.reverse().map(item => states.splice(item, 1))
-      settings.setLayerSettingForKey(symbol.master,
-        context.plugin.identifier(), states)
-      analytics(context, result.deletion, result.selection.length)
-      return UI.message(result.selection.length + " states deleted.")
+    if (response === 1000) {
+      list.options.map((state, i) => {
+        if (state.state()) {
+          selected.push(i)
+        }
+      })
+      if (selected.length == 0) {
+        analytics("Delete None")
+        return UI.message("Nothing deleted.")
+      }
+      selected.reverse().map(item => states.splice(item, 1))
+      settings.setLayerSettingForKey(symbol.master, context.plugin.identifier(), states)
+      analytics("Delete Selected", selected.length)
+      return UI.message(selected.length + " states deleted.")
     }
+  } catch (e) {
+    console.log(e)
+    return e
   }
 }
 
-const deleteStatesDialog = items => {
-  var buttons = ['Delete', 'Cancel', 'Delete All']
-  var message = "Delete States"
-  var info = "Please select state to be deleted."
-  var accessory = UI.list(items)
-  var response = UI.dialog(message, info, accessory[0], buttons)
-  var selection = []
-  if (response === 1002) {
-    var confirmed = deleteAllDialog()
-    if (confirmed === 1000) {
-      accessory[1].map((state, i) => selection.push(i))
-      return {
-        deletion: "delete all",
-        selection: selection
-      }
-    }
-  }
-  if (response === 1000) {
-    accessory[1].map((state, i) => {
-      if (state.state()) {
-        selection.push(i)
-      }
-    })
-    return {
-      deletion: "delete",
-      selection: selection
-    }
-  }
+const deleteStatesDialog = accessory => {
+  let buttons = ['Delete', 'Cancel', 'Delete All'],
+    message = "Delete States",
+    info = "Please select state to be deleted."
+  return UI.dialog(message, info, accessory, buttons)
 }
+
 
 const deleteAllDialog = () => {
-  var buttons = ['Delete All', 'Cancel']
-  var message = "Are you sure?"
-  var info = "All symbol states will be deleted!"
+  let buttons = ['Delete All', 'Cancel'],
+    message = "Are you sure?",
+    info = "All symbol states will be deleted!"
   return UI.dialog(message, info, null, buttons)
 }
