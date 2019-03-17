@@ -3,26 +3,11 @@ import settings from 'sketch/settings'
 import send from 'sketch-module-google-analytics'
 import * as UI from './ui.js'
 
-const GA_TRACKING_ID = "UA-5738625-2"
-
-export const analytics = (label, value) => {
-  const payload = {}
-  payload.ec = context.plugin.name()
-  payload.ea = context.command.name()
-  if (label) {
-    payload.el = label
-  }
-  if (value) {
-    payload.ev = value
-  }
-  return send(context, GA_TRACKING_ID, 'event', payload)
-}
-
 export const getSymbol = selection => {
   if (selection.length != 1 ||
     selection.layers[0].type != sketch.Types.SymbolInstance) {
-    analytics("Selection Error", 0)
-    throw UI.message("Please select a symbol instance.")
+    analytics("Selection Error")
+    throw UI.error("Please select a symbol instance.")
   } else {
     return selection.layers[0]
   }
@@ -32,8 +17,8 @@ export const getStates = (symbol, error) => {
   let states = settings
     .layerSettingForKey(symbol.master, context.plugin.identifier()) || []
   if (error && states.length < 1) {
-    analytics("No States", 0)
-    throw UI.dialog(context.command.name(), "There are not any states.")
+    analytics("No States")
+    throw UI.dialog("There are not any states.")
   }
   return states.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase())
 }
@@ -52,6 +37,20 @@ export const getValueForOverride = (doc, symbol, override) => {
       break;
   }
   return (value) ? value : override.value
+}
+
+export const analytics = (label, value) => {
+  const ID = "UA-5738625-2"
+  const payload = {}
+  payload.ec = context.plugin.name()
+  payload.ea = context.command.name()
+  if (label) {
+    payload.el = label
+  }
+  if (value) {
+    payload.ev = value
+  }
+  return send(context, ID, 'event', payload)
 }
 
 const getValueForSymbolOverride = (doc, symbol, override) => {

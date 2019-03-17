@@ -17,31 +17,26 @@ export default context => {
       states = getStates(symbol, true),
       list = UI.optionList(states.map(state => state.name)),
       accessory = UI.scrollView(list.view),
-      response = deleteStatesDialog(accessory),
-      selected = []
+      response = deleteStatesDialog(accessory)
     if (response === 1002) {
       let confirmed = deleteAllDialog()
       if (confirmed === 1000) {
         settings.setLayerSettingForKey(symbol.master,
           context.plugin.identifier(), [])
         analytics("Delete All", states.length)
-        return UI.message("All " + states.length + " states deleted.")
+        return UI.success("All " + states.length + " states deleted.")
       }
     }
     if (response === 1000) {
-      list.options.map((state, i) => {
-        if (state.state()) {
-          selected.push(i)
-        }
-      })
-      if (selected.length == 0) {
+      console.log(list)
+      if (list.getSelection().length == 0) {
         analytics("Delete None")
-        return UI.message("Nothing deleted.")
+        return UI.error("Nothing deleted.")
       }
-      selected.reverse().map(item => states.splice(item, 1))
+      list.getSelection().reverse().map(item => states.splice(item, 1))
       settings.setLayerSettingForKey(symbol.master, context.plugin.identifier(), states)
-      analytics("Delete Selected", selected.length)
-      return UI.message(selected.length + " states deleted.")
+      analytics("Delete Selected", list.getSelection().length)
+      return UI.success(list.getSelection().length + " states deleted.")
     }
   } catch (e) {
     console.log(e)
@@ -51,9 +46,8 @@ export default context => {
 
 const deleteStatesDialog = accessory => {
   let buttons = ['Delete', 'Cancel', 'Delete All'],
-    message = "Delete States",
     info = "Please select state to be deleted."
-  return UI.dialog(message, info, accessory, buttons)
+  return UI.dialog(info, accessory, buttons)
 }
 
 
@@ -61,5 +55,5 @@ const deleteAllDialog = () => {
   let buttons = ['Delete All', 'Cancel'],
     message = "Are you sure?",
     info = "All symbol states will be deleted!"
-  return UI.dialog(message, info, null, buttons)
+  return UI.dialog(info, null, buttons, message)
 }

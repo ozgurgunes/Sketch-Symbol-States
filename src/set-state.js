@@ -39,8 +39,8 @@ export default context => {
         analytics("State Errors", errors.length / stateOverrides.length)
         return errorDialog(symbol, stateName, errors)
       }
-      analytics("Sate Set", true)
-      return UI.message(stateName + " state set.")
+      analytics("Sate Set", 1)
+      return UI.success(stateName + " state set.")
     }
 
   } catch (e) {
@@ -52,10 +52,9 @@ export default context => {
 
 const setStateDialog = items => {
   let buttons = ['Set', 'Cancel'],
-    message = context.command.name(),
     info = "Please select a symbol state.",
     accessory = UI.popUpButton(items),
-    response = UI.dialog(message, info, accessory, buttons),
+    response = UI.dialog(info, accessory, buttons),
     result = {
       index: accessory.indexOfSelectedItem(),
       title: accessory.titleOfSelectedItem()
@@ -66,13 +65,12 @@ const setStateDialog = items => {
 }
 
 const errorDialog = (symbol, stateName, overrides) => {
-  let message = context.command.name(),
-    info = stateName + " has errors. Some overrides could not be found:",
+  let info = stateName + " has errors. Some overrides could not be found:",
     items = getErrorList(symbol, overrides),
     list = UI.errorList(items),
     accessory = UI.scrollView(list)
 
-  UI.dialog(message, info, accessory)
+  UI.dialog(info, accessory)
 }
 
 const getErrorList = (symbol, overrides) => {
@@ -91,8 +89,8 @@ const getErrorList = (symbol, overrides) => {
       }).affectedLayer.name)
     })
     let path = error.join(" > ")
-    if (path.length > 28) {
-      path = "..." + error.join(" > ").slice(-28)
+    if (path.length > 36) {
+      path = path.slice(0,16) + " ... " + path.slice(-16)
     }
     return properties[override.property] + ":  " + path
   })

@@ -27,7 +27,7 @@ const saveState = context => {
         settings.setLayerSettingForKey(symbol.master,
           context.plugin.identifier(), states)
         analytics("Update", true)
-        return UI.message(stateName + " updated.")
+        return UI.success(stateName + " updated.")
       } else {
         states.push({
           name: stateName,
@@ -36,7 +36,7 @@ const saveState = context => {
         settings.setLayerSettingForKey(symbol.master,
           context.plugin.identifier(), states)
         analytics("Save", true)
-        return UI.message(stateName + " updated.")
+        return UI.success(stateName + " saved.")
       }
     }
   } catch (e) {
@@ -65,10 +65,9 @@ const getSymbolOverrides = symbol => {
 
 const saveStateDialog = items => {
   let buttons = ['Save', 'Cancel'],
-    message = context.command.name(),
     info = "Please give a name to symbol state.",
     accessory = UI.comboBox(items),
-    response = UI.dialog(message, info, accessory, buttons),
+    response = UI.dialog(info, accessory, buttons),
     result = accessory.stringValue()
   if (response === 1000) {
     if (!result.length() > 0) {
@@ -82,5 +81,5 @@ const updateStateDialog = stateName => {
   let buttons = ['Update', 'Cancel'],
     message = "Are you sure?",
     info = 'This will update "' + stateName + '" state.'
-  return UI.dialog(message, info, null, buttons)
+  return UI.dialog(info, null, buttons, message)
 }

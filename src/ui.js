@@ -1,12 +1,25 @@
 import sketch from 'sketch/dom'
 import UI from "sketch/ui"
 
-export const message = message => {
-  UI.message(context.command.name() + ": " + message)
+export const message = (msg, status) => {
+  let emoji = ""
+  switch (status) {
+  case "error":
+    emoji = "⚠️   "
+    break;
+  case "success":
+    emoji = "✅   "
+    break;
+  }
+  UI.message(emoji + context.command.name() + ": " + msg)
 }
 
-export const dialog = (message, info, accessory, buttons) => {
+export const error = msg => message(msg, "error")
+export const success = msg => message(msg, "success")
+
+export const dialog = (info, accessory, buttons, message) => {
   var buttons = buttons || ['OK'],
+    message = message || context.command.name(),
     alert = NSAlert.alloc().init()
   alert.setMessageText(message)
   alert.setInformativeText(info)
@@ -40,9 +53,9 @@ export const popUpButton = items => {
 }
 
 export const scrollView = view => {
-  let accessory = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 280, 120)),
+  let accessory = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 300, 120)),
     scrollView = NSScrollView.alloc()
-    .initWithFrame(NSMakeRect(0, 0, 280, 120))
+    .initWithFrame(NSMakeRect(0, 0, 300, 120))
   scrollView.setHasVerticalScroller(true)
   scrollView.setHasHorizontalScroller(false)
   scrollView.setDocumentView(view)
@@ -52,11 +65,11 @@ export const scrollView = view => {
 
 export const optionList = items => {
   let listView = NSView.alloc()
-    .initWithFrame(NSMakeRect(0, 0, 270, items.length * 24 + 10)),
+    .initWithFrame(NSMakeRect(0, 0, 300, items.length * 24 + 10)),
     options = []
   items.map((item, i) => {
     options[i] = NSButton.alloc()
-      .initWithFrame(NSMakeRect(5, 5 + i * 24, 270, 20))
+      .initWithFrame(NSMakeRect(5, 5 + i * 24, 290, 20))
     options[i].setButtonType(NSSwitchButton)
     options[i].setTitle(item)
     options[i].setState(false)
@@ -65,18 +78,27 @@ export const optionList = items => {
   })
   return {
     options: options,
-    view: listView
+    view: listView,
+    getSelection: () => {
+    let selection = []
+    options.map((option, i) => {
+      if (option.state()) {
+        selection.push(i)
+      }
+    })
+    return selection
+  }
   }
 }
 
 export const errorList = items => {
   let listView = NSView.alloc()
-    .initWithFrame(NSMakeRect(0, 0, 280, items.length * 24 + 10)),
+    .initWithFrame(NSMakeRect(0, 0, 300, items.length * 24 + 10)),
     font = NSFont.systemFontOfSize(NSFont.smallSystemFontSize()),
     errors = []
   items.map((item, i) => {
     errors[i] = NSTextView.alloc()
-      .initWithFrame(NSMakeRect(5, 10 + i * 24, 270, 20))
+      .initWithFrame(NSMakeRect(5, 10 + i * 24, 290, 20))
     errors[i].insertText(item)
     errors[i].setFont(font)
     errors[i].setEditable(false)
