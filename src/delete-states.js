@@ -8,7 +8,6 @@ import {
 } from './utils.js'
 
 var doc = sketch.getSelectedDocument(),
-  libraries = sketch.getLibraries(),
   selection = doc.selectedLayers
 
 export default context => {

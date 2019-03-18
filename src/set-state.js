@@ -9,7 +9,6 @@ import {
 } from './utils.js'
 
 var doc = sketch.getSelectedDocument(),
-  libraries = sketch.getLibraries(),
   selection = doc.selectedLayers
 
 export default context => {
@@ -39,7 +38,7 @@ export default context => {
         analytics("State Errors", errors.length / stateOverrides.length)
         return errorDialog(symbol, stateName, errors)
       }
-      analytics("Sate Set", 1)
+      analytics("State Set", 1)
       return UI.success(stateName + " state set.")
     }
 
