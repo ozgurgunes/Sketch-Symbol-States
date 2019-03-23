@@ -43,3 +43,6 @@ To delete states of selected symbol;
 * Check states which you want to delete (Click ```Delete All``` if you want to delete all states).
 * Click ```Delete```.
 
+### States from Document & Library
+
+If you're working on a document and you've imported a symbol from a library; states coming from library will be listed with an `asterisk *`. You can't update or delete states coming from library.
