@@ -1,12 +1,12 @@
 import sketch from 'sketch/dom'
-import * as UI from './ui.js'
+import * as UI from './ui'
+import analytics from './analytics'
 import {
   getSymbol,
   getStates,
   getStatesFromDocument,
-  saveSymbolStates,
-  analytics
-} from './utils.js'
+  saveSymbolStates
+} from './utils'
 
 var doc = sketch.getSelectedDocument()
 var selection = doc.selectedLayers
@@ -38,7 +38,7 @@ const saveState = context => {
         states[i].overrides = getSymbolOverrides(symbol)
         // Save updated states.
         saveSymbolStates(symbol, states)
-        analytics('Update', true)
+        analytics('Update', 1)
         return UI.success(stateName + ' updated.')
       } else {
         // Add new state to states data.
@@ -48,7 +48,7 @@ const saveState = context => {
         })
         // Save states data with new state.
         saveSymbolStates(symbol, states)
-        analytics('Save', true)
+        analytics('Save', 1)
         return UI.success(stateName + ' saved.')
       }
     }

@@ -1,12 +1,12 @@
 import sketch from 'sketch/dom'
-import * as UI from './ui.js'
+import * as UI from './ui'
+import analytics from './analytics'
 import {
   getSymbol,
   getStates,
   getStatesFromDocument,
-  saveSymbolStates,
-  analytics
-} from './utils.js'
+  saveSymbolStates
+} from './utils'
 
 var doc = sketch.getSelectedDocument()
 var selection = doc.selectedLayers

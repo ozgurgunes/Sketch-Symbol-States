@@ -1,10 +1,10 @@
 import sketch from 'sketch/dom'
-import * as UI from './ui.js'
+import * as UI from './ui'
+import analytics from './analytics'
 import {
   getSymbol,
-  getStates,
-  analytics
-} from './utils.js'
+  getStates
+} from './utils'
 
 var doc = sketch.getSelectedDocument()
 var selection = doc.selectedLayers
@@ -19,7 +19,7 @@ export default context => {
     if (result && states[result.index]) {
       if (result.index < 1) {
         analytics('Select None')
-        return UI.error('No state selected.')        
+        return UI.error('No state selected.')
       }
       let stateName = states[result.index].name
       let stateOverrides = states[result.index].overrides

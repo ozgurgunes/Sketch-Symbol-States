@@ -1,7 +1,6 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
-import send from 'sketch-module-google-analytics'
-import * as UI from './ui.js'
+import * as UI from './ui'
 
 export const getSymbol = selection => {
   if (selection.length != 1 ||
@@ -27,20 +26,6 @@ export const getStates = (symbol, error) => {
     throw UI.dialog('There are not any states.')
   }
   return states.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase())
-}
-
-export const analytics = (label, value) => {
-  const ID = 'UA-5738625-2'
-  const payload = {}
-  payload.ec = context.plugin.name()
-  payload.ea = context.command.name()
-  if (label) {
-    payload.el = label
-  }
-  if (value) {
-    payload.ev = value
-  }
-  return send(context, ID, 'event', payload)
 }
 
 export const getStatesFromDocument = (symbol, sort) => {

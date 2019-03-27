@@ -11,7 +11,8 @@
     "plugins": ["prettier"],
     "globals": {
         "context": false,
-        "NSSwitchButton": false
+        "NSSwitchButton": false,
+        "NSURLSession": false
     },
     "parserOptions": {
         "ecmaVersion": 2018,
