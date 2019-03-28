@@ -1,5 +1,6 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
+import analytics from './analytics'
 import * as UI from './ui'
 
 export const getSymbol = selection => {

@@ -56,9 +56,6 @@ const analytics = (label, value) => {
       jsonToQueryString(payload))
   )
 
-  console.log(context.command.name())
-  console.log(url)
-
   if (url) {
     NSURLSession.sharedSession().dataTaskWithURL(url).resume()
   }
