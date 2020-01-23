@@ -31,12 +31,12 @@
     "postinstall": "npm run build && skpm-link"
   },
   "devDependencies": {
-    "@skpm/builder": "^0.5.16",
-    "eslint": "^5.15.3",
-    "eslint-config-prettier": "^4.1.0",
+    "@skpm/builder": "^0.7.5",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
     "eslint-config-sketch": "^0.2.4",
-    "eslint-plugin-prettier": "^3.0.1",
-    "prettier": "^1.16.4",
+    "eslint-plugin-prettier": "^3.1.2",
+    "prettier": "^1.19.1",
     "standard": "^12.0.1"
   }
 }
