@@ -68,8 +68,8 @@ const getSymbolOverrides = symbol => {
   let stateOverride
   let overrides = []
   symbol.overrides.map(override => {
-    // Ignore uneditable and image overrides.
-    if (override.editable && override.property != 'image') {
+    // Ignore uneditable, default and image overrides.
+    if (override.editable && !override.isDefault && override.property != 'image') {
       stateOverride = {
         id: override.id,
         property: override.property,
