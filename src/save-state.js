@@ -70,15 +70,28 @@ const getSymbolOverrides = symbol => {
   symbol.overrides.map(override => {
     // Ignore uneditable, default and image overrides.
     if (override.editable && !override.isDefault && override.property != 'image') {
+      let overrideValue = override.value
+      if (override.property == 'fillColor') {
+        overrideValue = getFillColorOverrideValue(override)
+      }
       stateOverride = {
         id: override.id,
         property: override.property,
-        value: override.value
+        value: overrideValue
       }
       overrides.push(stateOverride)
     }
   })
   return overrides
+}
+
+const getFillColorOverrideValue = override => {
+  let color = override.sketchObject.overrideValue()
+  let red = Math.round(color.red() * 255)
+  let green = Math.round(color.green() * 255)
+  let blue = Math.round(color.blue() * 255)
+  let alpha = color.alpha()
+  return "rgba(" + red + "," + green + "," + blue + "," + alpha + ")"
 }
 
 const saveStateDialog = items => {

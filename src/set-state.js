@@ -137,9 +137,17 @@ export const getValueForOverride = (doc, symbol, override) => {
     case (override.property == 'layerStyle'):
       value = getValueForLayerStyleOverride(doc, symbol, override)
       break
+    case (override.property == 'fillColor'):
+      value = getValueForFillColorOverride(override.value)
+      break
   }
   // Return saved value if we couldn't get the correct one or it is "None".
   return (value) || override.value
+}
+
+const getValueForFillColorOverride = overrideValue => {
+  return MSImmutableColor
+    .colorWithSVGString(overrideValue).newMutableCounterpart()
 }
 
 const getValueForSymbolOverride = (doc, symbol, override) => {
@@ -170,11 +178,8 @@ const getValueForSymbolOverride = (doc, symbol, override) => {
       // Is that master imported to that library from another too?
       if (master.getLibrary()) {
         // Then lets try to find it in its own library.
-        // Here we can search by name only! Because importable references
-        // has no objectId and reference's id is useless for our search.
         importable = master.getLibrary()
           .getImportableSymbolReferencesForDocument(doc)
-          // .find(importable => importable.name == master.name)
           .find(importable => {
             return importable.sketchObject
               .symbolMaster().objectID() == master.id
@@ -184,7 +189,6 @@ const getValueForSymbolOverride = (doc, symbol, override) => {
         // another. It is an original symbol of the library which we imported
         // to document from. Lets try to find it as an importable.
         importable = library.getImportableSymbolReferencesForDocument(doc)
-          // .find(importable => importable.name == master.name)
           .find(importable => {
             return importable.sketchObject
               .symbolMaster().objectID() == master.id
