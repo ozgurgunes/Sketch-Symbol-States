@@ -16,15 +16,13 @@ export default context => {
     states.unshift({ name: '- Select a State -', overrides: [] })
     // Display a dialog for popup button of existing states.
     let result = setStateDialog(states.map(state => state.name))
-    if (result && states[result.index]) {
-      if (result.index < 1) {
-        analytics('Select None')
-        return UI.error('No state selected.')
-      }
-      let stateName = states[result.index].name
-      let stateOverrides = states[result.index].overrides
+    if (result && states[result]) {
+      let stateName = states[result].name
+      let stateOverrides = states[result].overrides
       let value
       let errors = []
+      // Reset overrides before set a state.
+      symbol.sketchObject.setOverrides(nil)
       // Match symbol overrides for every override data in chosen state.
       stateOverrides.map(stateOverride => {
         symbol.overrides.map(symbolOverride => {
@@ -69,14 +67,18 @@ export default context => {
 const setStateDialog = items => {
   let buttons = ['Set', 'Cancel']
   let info = 'Please select a symbol state.'
-  let accessory = UI.popUpButton(items)
+  let accessory = UI.comboBox(items)
+  accessory.selectItemAtIndex(0)
   let response = UI.dialog(info, accessory, buttons)
-  let result = {
-    index: accessory.indexOfSelectedItem(),
-    // Title needed for UI messages.
-    title: accessory.titleOfSelectedItem()
-  }
+  let result = accessory.indexOfSelectedItem()
   if (response === 1000) {
+    if (!result > 0) {
+      // User clicked "OK" without selecting a state.
+      // Return dialog until user selects a state or clicks "Cancel".
+      analytics('No Selection')
+      UI.error('Please select a state.')
+      return setStateDialog(items)
+    }
     return result
   }
 }

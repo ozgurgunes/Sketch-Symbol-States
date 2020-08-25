@@ -104,6 +104,8 @@ const saveStateDialog = items => {
     if (!result.length() > 0) {
       // User clicked "OK" without entering a name.
       // Return dialog until user enters a name or clicks "Cancel".
+      analytics('No Name')
+      UI.error('Please enter a name for state.')
       return saveStateDialog(items)
     }
     return result
