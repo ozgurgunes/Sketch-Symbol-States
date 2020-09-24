@@ -13,19 +13,19 @@
     {
       "name": "Save State",
       "identifier": "symbol-states.save-state",
-      "shortcut" : "cmd ctrl shift o",
+      "shortcut": "cmd ctrl shift o",
       "script": "./save-state.js"
     },
     {
       "name": "Set State",
       "identifier": "symbol-states.set-state",
-      "shortcut" : "cmd ctrl o",
+      "shortcut": "cmd ctrl o",
       "script": "./set-state.js"
     },
     {
       "name": "Delete States",
       "identifier": "symbol-states.delete-states",
-      "shortcut" : "cmd ctrl alt shift o",
+      "shortcut": "cmd ctrl alt shift o",
       "script": "./delete-states.js"
     }
   ],
