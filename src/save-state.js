@@ -106,7 +106,7 @@ const getFillColorOverrideValue = (override) => {
     let alpha = color.alpha()
     return "rgba(" + red + "," + green + "," + blue + "," + alpha + ")"
   }
-  return color.swatchID()
+  return color.swatchID() + "|" + color.CSSAttributeString()
 }
 
 const saveStateDialog = (items) => {

@@ -155,7 +155,7 @@ const getValueForFillColorOverride = (doc, symbol, override) => {
   // This is a swatch override. Start to search matching swatch.
   // Lets look in to document first.
   let swatch = doc.swatches.find((swatch) =>
-    swatch.referencingColor.swatchID().includes(override.value)
+    swatch.referencingColor.swatchID().includes(override.value.split("|")[0])
   )
   if (swatch) {
     // Found it, easy one.
@@ -164,41 +164,71 @@ const getValueForFillColorOverride = (doc, symbol, override) => {
   // Swatch is not in document, start to search libraries.
   let library = symbol.master.getLibrary()
   if (library) {
+    // Let's assume that state is saved locally first.
     let importable = library
       .getImportableSwatchReferencesForDocument(doc)
-      .find((importable) => importable.id.includes(override.value))
+      .find((importable) =>
+        importable.id.includes(override.value.split("|")[0])
+      )
     if (importable) {
       // State is local but swatch found in symbol masters library.
       return importable.import().referencingColor
     }
-    // State is also coming from library.
+    // Not found! Mayve state is also coming from library.
     let swatch = library
       .getDocument()
       .swatches.find((swatch) =>
-        swatch.referencingColor.swatchID().includes(override.value)
+        swatch.referencingColor
+          .swatchID()
+          .includes(override.value.split("|")[0])
       )
     if (swatch) {
+      // Swatch found, now we have to get it as importable.
+      // Searching by name is not realiable but no other way.
       let importable = library
         .getImportableSwatchReferencesForDocument(doc)
         .find((importable) => importable.name == swatch.name)
       if (importable) {
-        // Swatch found in states library.
+        // Swatch found in symbol masters library.
         return importable.import().referencingColor
       }
     }
   }
-  // Still not found! Search all libraries.
+  // Still not found! Search all libraries by assuming
+  // that state is saved locally.
   for (let lib of sketch.getLibraries()) {
     let importable = lib
       .getImportableSwatchReferencesForDocument(doc)
-      .find((importable) => importable.id.includes(override.value))
+      .find((importable) =>
+        importable.id.includes(override.value.split("|")[0])
+      )
     if (importable) {
       // Swatch found in some other library.
       return importable.import().referencingColor
     }
   }
   // Damn! Most likely state is set in the library and swatch is
-  // in another library. Currently no way to find it.
+  // in another library. Search all libraries again by color string.
+  // If a matching swatch found, find it as an importable by its name.
+  // This is not a reliable way but we have no other chance.
+  for (let lib of sketch.getLibraries()) {
+    let swatch = lib
+      .getDocument()
+      .swatches.find((swatch) =>
+        swatch.referencingColor
+          .CSSAttributeString()
+          .includes(override.value.split("|")[1])
+      )
+    if (swatch) {
+      let importable = lib
+        .getImportableSwatchReferencesForDocument(doc)
+        .find((importable) => importable.name.includes(swatch.name))
+      if (importable) {
+        // Swatch found in some other library.
+        return importable.import().referencingColor
+      }
+    }
+  }
   throw "Swatch not found!"
 }
 
