@@ -72,7 +72,8 @@ const getSymbolOverrides = (symbol) => {
     switch (true) {
       case !override.editable ||
         override.isDefault ||
-        override.property == "image":
+        override.property == "image" ||
+        !override.sketchObject.overrideValue():
         break
       case override.property == "fillColor" &&
         override.sketchObject.overrideValue() != null:
