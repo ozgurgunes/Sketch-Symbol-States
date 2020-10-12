@@ -1,4 +1,4 @@
-<img src="https://github.com/ozgurgunes/Sketch-Symbol-States/blob/master/assets/icon.png?raw=true" alt="Sketch Case Converter" width="192" align="right" />
+<img src="https://github.com/ozgurgunes/Sketch-Symbol-States/blob/master/assets/icon.png?raw=true" alt="Sketch Symbol States" width="192" align="right" />
 
 Symbol States  [![Download Latest][image]][link]
 =============

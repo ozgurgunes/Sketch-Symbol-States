@@ -1,26 +1,26 @@
-import settings from "sketch/settings"
+import settings from 'sketch/settings'
 
-export default (label, value) => {
-  let analyticsAllowed = settings.settingForKey("analyticsAllowed") || false
+export default function(label, value) {
+  let analyticsAllowed = settings.settingForKey('analyticsAllowed') || false
 
   if (analyticsAllowed != true) {
     let dialog = NSAlert.alloc().init()
     if (context.plugin.alertIcon()) {
       dialog.icon = context.plugin.alertIcon()
     }
-    dialog.setMessageText("Allow Google Analytics")
+    dialog.setMessageText('Allow Google Analytics')
     dialog.setInformativeText(
-      "Please allow " +
+      'Please allow ' +
         context.plugin.name() +
-        " " +
-        "plugin to use Google Analytics for tracking statistics."
+        ' ' +
+        'plugin to use Google Analytics for tracking statistics.'
     )
-    dialog.addButtonWithTitle("Allow")
-    dialog.addButtonWithTitle("Disallow")
+    dialog.addButtonWithTitle('Allow')
+    dialog.addButtonWithTitle('Disallow')
     let response = dialog.runModal()
     if (response == 1000) {
       analyticsAllowed = true
-      settings.setSettingForKey("analyticsAllowed", analyticsAllowed)
+      settings.setSettingForKey('analyticsAllowed', analyticsAllowed)
     }
   }
 
@@ -29,8 +29,8 @@ export default (label, value) => {
   }
 }
 
-const analytics = (label, value) => {
-  let kUUIDKey = "google.analytics.uuid"
+function analytics(label, value) {
+  let kUUIDKey = 'google.analytics.uuid'
   let uuid = NSUserDefaults.standardUserDefaults().objectForKey(kUUIDKey)
   if (!uuid) {
     uuid = NSUUID.UUID().UUIDString()
@@ -40,15 +40,15 @@ const analytics = (label, value) => {
 
   let payload = {
     v: 1,
-    tid: "UA-5738625-2",
-    ds: "Sketch " + MSApplicationMetadata.metadata().appVersion,
+    tid: 'UA-5738625-2',
+    ds: 'Sketch ' + MSApplicationMetadata.metadata().appVersion,
     cid: uuid,
-    t: "event",
+    t: 'event',
     an: context.plugin.name(),
     aid: context.plugin.identifier(),
     av: context.plugin.version(),
     ec: context.plugin.name(),
-    ea: context.command.name(),
+    ea: context.command.name()
   }
   if (label) {
     payload.el = label
@@ -59,7 +59,7 @@ const analytics = (label, value) => {
 
   let url = NSURL.URLWithString(
     NSString.stringWithFormat(
-      "https://www.google-analytics.com/collect%@",
+      'https://www.google-analytics.com/collect%@',
       jsonToQueryString(payload)
     )
   )
@@ -71,13 +71,11 @@ const analytics = (label, value) => {
   }
 }
 
-const jsonToQueryString = (json) => {
+function jsonToQueryString(json) {
   return (
-    "?" +
+    '?' +
     Object.keys(json)
-      .map((key) => {
-        return encodeURIComponent(key) + "=" + encodeURIComponent(json[key])
-      })
-      .join("&")
+      .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(json[key]))
+      .join('&')
   )
 }

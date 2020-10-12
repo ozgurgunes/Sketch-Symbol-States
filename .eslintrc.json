@@ -6,18 +6,18 @@
     "extends": [
       "eslint:recommended", 
       "prettier", 
-      "standard", 
       "sketch"],
-    "plugins": ["prettier"],
     "globals": {
-        "context": false,
-        "NSSwitchButton": false,
-        "NSURLSession": false
+        "context": "readonly",
+        "nil": "readonly",
+        "NSSwitchButton": "readonly",
+        "NSURLSession": "readonly"
     },
     "parserOptions": {
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
+    "plugins": ["prettier"],
     "rules": {
       "no-console": "off"
     }

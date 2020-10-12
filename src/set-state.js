@@ -1,21 +1,21 @@
-import sketch from "sketch/dom"
-import * as UI from "./ui"
-import analytics from "./analytics"
-import { getSymbol, getStates } from "./utils"
+import sketch from 'sketch/dom'
+import * as UI from './ui'
+import analytics from './analytics'
+import { getSymbol, getStates } from './utils'
 
 var doc = sketch.getSelectedDocument()
 var selection = doc.selectedLayers
 
-export default (context) => {
+export default function(context) {
   try {
     let symbol = getSymbol(selection)
     let states = getStates(symbol, true)
     states.unshift({
-      name: "- Select a State -",
-      overrides: [],
+      name: '- Select a State -',
+      overrides: []
     })
     // Display a dialog for popup button of existing states.
-    let result = setStateDialog(states.map((state) => state.name))
+    let result = setStateDialog(states.map(state => state.name))
     if (result && states[result]) {
       let stateName = states[result].name
       let stateOverrides = states[result].overrides
@@ -23,9 +23,9 @@ export default (context) => {
       // Reset overrides before set a state.
       symbol.sketchObject.setOverrides(nil)
       // Set symbol overrides for every override data in chosen state.
-      stateOverrides.map((stateOverride) => {
+      stateOverrides.map(stateOverride => {
         let symbolOverride = symbol.overrides.find(
-          (override) => override.id == stateOverride.id
+          override => override.id == stateOverride.id
         )
         // Symbol and style ids change for every document,
         // if they have been imported from a library.
@@ -41,13 +41,13 @@ export default (context) => {
       // This seems unnecessary actually but lets be sure.
       context.document.reloadInspector()
       if (errors.length > 0) {
-        analytics("State Errors", errors.length / stateOverrides.length)
+        analytics('State Errors', errors.length / stateOverrides.length)
         // If there are any overrides whose values couldn't be get,
         // display a list of their layers (and parents) name.
         return errorDialog(symbol, stateName, errors)
       }
-      analytics("State Set", 1)
-      return UI.success(stateName + " state set.")
+      analytics('State Set', 1)
+      return UI.success(stateName + ' state set.')
     }
   } catch (e) {
     if (e) {
@@ -58,9 +58,9 @@ export default (context) => {
   }
 }
 
-const setStateDialog = (items) => {
-  let buttons = ["Set", "Cancel"]
-  let info = "Please select a symbol state."
+function setStateDialog(items) {
+  let buttons = ['Set', 'Cancel']
+  let info = 'Please select a symbol state.'
   let accessory = UI.comboBox(items)
   accessory.selectItemAtIndex(0)
   let response = UI.dialog(info, accessory, buttons)
@@ -69,74 +69,74 @@ const setStateDialog = (items) => {
     if (!result > 0) {
       // User clicked "OK" without selecting a state.
       // Return dialog until user selects a state or clicks "Cancel".
-      analytics("No Selection")
-      UI.error("Please select a state.")
+      analytics('No Selection')
+      UI.error('Please select a state.')
       return setStateDialog(items)
     }
     return result
   }
 }
 
-const errorDialog = (symbol, stateName, overrides) => {
-  let info = stateName + " has errors. Some overrides could not be found:"
+function errorDialog(symbol, stateName, overrides) {
+  let info = stateName + ' has errors. Some overrides could not be found:'
   let items = getErrorList(symbol, overrides)
   let list = UI.errorList(items)
   let accessory = UI.scrollView(list)
   UI.dialog(info, accessory)
 }
 
-const getErrorList = (symbol, overrides) => {
+function getErrorList(symbol, overrides) {
   var properties = {
-    textStyle: "Text Style",
-    layerStyle: "Layer Style",
-    symbolID: "Symbol",
-    stringValue: "Text",
-    fillColor: "Tint Color",
+    textStyle: 'Text Style',
+    layerStyle: 'Layer Style',
+    symbolID: 'Symbol',
+    stringValue: 'Text',
+    fillColor: 'Tint Color'
   }
   // Create an informative report for overrides
   // whose values couldn't be get.
   // Showing only overrides layer name is not enough,
   // Most of overrides share same name like "Text" or "Background".
   // So, generate a path with their parent layers name.
-  return overrides.map((override) => {
-    let layers = override.path.split("/")
+  return overrides.map(override => {
+    let layers = override.path.split('/')
     let error = []
     layers.map((layer, i) => {
       error.push(
-        symbol.overrides.find((symbolOverride) => {
-          return symbolOverride.path == layers.slice(0, i + 1).join("/")
+        symbol.overrides.find(symbolOverride => {
+          return symbolOverride.path == layers.slice(0, i + 1).join('/')
         }).affectedLayer.name
       )
     })
-    let path = error.join(" > ")
+    let path = error.join(' > ')
     // Paths may be too long to fit in dialog window.
     // So, display first and last 16 characters only,
     // to help identify which overrides could not be found.
     if (path.length > 36) {
-      path = path.slice(0, 16) + " ... " + path.slice(-16)
+      path = path.slice(0, 16) + ' ... ' + path.slice(-16)
     }
     // Display override type before the path for a comprehensible report.
-    return properties[override.property] + ":  " + path
+    return properties[override.property] + ':  ' + path
   })
 }
 
-export const getValueForOverride = (doc, symbol, override) => {
+export function getValueForOverride(doc, symbol, override) {
   let value
   // Run the appropriate function according to override type
   // to get override value.
   switch (true) {
-    case override.value == "":
+    case override.value == '':
       break
-    case override.property == "symbolID":
+    case override.property == 'symbolID':
       value = getValueForSymbolOverride(doc, symbol, override)
       break
-    case override.property == "textStyle":
+    case override.property == 'textStyle':
       value = getValueForTextStyleOverride(doc, symbol, override)
       break
-    case override.property == "layerStyle":
+    case override.property == 'layerStyle':
       value = getValueForLayerStyleOverride(doc, symbol, override)
       break
-    case override.property == "fillColor":
+    case override.property == 'fillColor':
       value = getValueForFillColorOverride(doc, symbol, override)
       break
   }
@@ -144,8 +144,8 @@ export const getValueForOverride = (doc, symbol, override) => {
   return value || override.value
 }
 
-const getValueForFillColorOverride = (doc, symbol, override) => {
-  if (override.value.startsWith("rgba(")) {
+function getValueForFillColorOverride(doc, symbol, override) {
+  if (override.value.startsWith('rgba(')) {
     // If override value is a CSSAttributeString,
     // simply return a MSColor object.
     return MSImmutableColor.colorWithSVGString(
@@ -154,8 +154,8 @@ const getValueForFillColorOverride = (doc, symbol, override) => {
   }
   // This is a swatch override. Start to search matching swatch.
   // Lets look in to document first.
-  let swatch = doc.swatches.find((swatch) =>
-    swatch.referencingColor.swatchID().includes(override.value.split("|")[0])
+  let swatch = doc.swatches.find(swatch =>
+    swatch.referencingColor.swatchID().includes(override.value.split('|')[0])
   )
   if (swatch) {
     // Found it, easy one.
@@ -167,9 +167,7 @@ const getValueForFillColorOverride = (doc, symbol, override) => {
     // Let's assume that state is saved locally first.
     let importable = library
       .getImportableSwatchReferencesForDocument(doc)
-      .find((importable) =>
-        importable.id.includes(override.value.split("|")[0])
-      )
+      .find(importable => importable.id.includes(override.value.split('|')[0]))
     if (importable) {
       // State is local but swatch found in symbol masters library.
       return importable.import().referencingColor
@@ -177,17 +175,17 @@ const getValueForFillColorOverride = (doc, symbol, override) => {
     // Not found! Mayve state is also coming from library.
     let swatch = library
       .getDocument()
-      .swatches.find((swatch) =>
+      .swatches.find(swatch =>
         swatch.referencingColor
           .swatchID()
-          .includes(override.value.split("|")[0])
+          .includes(override.value.split('|')[0])
       )
     if (swatch) {
       // Swatch found, now we have to get it as importable.
       // Searching by name is not realiable but no other way.
       let importable = library
         .getImportableSwatchReferencesForDocument(doc)
-        .find((importable) => importable.name == swatch.name)
+        .find(importable => importable.name == swatch.name)
       if (importable) {
         // Swatch found in symbol masters library.
         return importable.import().referencingColor
@@ -199,9 +197,7 @@ const getValueForFillColorOverride = (doc, symbol, override) => {
   for (let lib of sketch.getLibraries()) {
     let importable = lib
       .getImportableSwatchReferencesForDocument(doc)
-      .find((importable) =>
-        importable.id.includes(override.value.split("|")[0])
-      )
+      .find(importable => importable.id.includes(override.value.split('|')[0]))
     if (importable) {
       // Swatch found in some other library.
       return importable.import().referencingColor
@@ -214,25 +210,25 @@ const getValueForFillColorOverride = (doc, symbol, override) => {
   for (let lib of sketch.getLibraries()) {
     let swatch = lib
       .getDocument()
-      .swatches.find((swatch) =>
+      .swatches.find(swatch =>
         swatch.referencingColor
           .CSSAttributeString()
-          .includes(override.value.split("|")[1])
+          .includes(override.value.split('|')[1])
       )
     if (swatch) {
       let importable = lib
         .getImportableSwatchReferencesForDocument(doc)
-        .find((importable) => importable.name.includes(swatch.name))
+        .find(importable => importable.name.includes(swatch.name))
       if (importable) {
         // Swatch found in some other library.
         return importable.import().referencingColor
       }
     }
   }
-  throw "Swatch not found!"
+  throw 'Swatch not found!'
 }
 
-const getValueForSymbolOverride = (doc, symbol, override) => {
+function getValueForSymbolOverride(doc, symbol, override) {
   // Look for overriding symbol master in this document.
   let master = doc.getSymbolMasterWithID(override.value)
   // If master is in this document return symbolId.
@@ -245,7 +241,7 @@ const getValueForSymbolOverride = (doc, symbol, override) => {
   if (library) {
     let importable = library
       .getImportableSymbolReferencesForDocument(doc)
-      .find((importable) => importable.id == override.value)
+      .find(importable => importable.id == override.value)
     // If overriding symbol master's reference found in
     // symbol master's library, import it and return symbolId.
     if (importable) {
@@ -256,7 +252,7 @@ const getValueForSymbolOverride = (doc, symbol, override) => {
     master = library
       .getDocument()
       .getSymbols()
-      .find((master) => master.symbolId == override.value)
+      .find(master => master.symbolId == override.value)
     if (master) {
       // Ok, we found local overriding master in symbol master's library.
       // We know its objectID and name now.
@@ -266,7 +262,7 @@ const getValueForSymbolOverride = (doc, symbol, override) => {
         importable = master
           .getLibrary()
           .getImportableSymbolReferencesForDocument(doc)
-          .find((importable) => {
+          .find(importable => {
             return (
               importable.sketchObject.symbolMaster().objectID() == master.id
             )
@@ -277,7 +273,7 @@ const getValueForSymbolOverride = (doc, symbol, override) => {
         // to document from. Lets try to find it as an importable.
         importable = library
           .getImportableSymbolReferencesForDocument(doc)
-          .find((importable) => {
+          .find(importable => {
             return (
               importable.sketchObject.symbolMaster().objectID() == master.id
             )
@@ -289,10 +285,10 @@ const getValueForSymbolOverride = (doc, symbol, override) => {
       }
     }
   }
-  throw "Symbol not found!"
+  throw 'Symbol not found!'
 }
 
-const getValueForTextStyleOverride = (doc, symbol, override) => {
+function getValueForTextStyleOverride(doc, symbol, override) {
   // Get original style id (within brackets) if it is an imported style.
   let id = getStyleID(override.value)
   // Then look for overriding style in this document.
@@ -308,33 +304,33 @@ const getValueForTextStyleOverride = (doc, symbol, override) => {
   if (library) {
     let importable = library
       .getImportableTextStyleReferencesForDocument(doc)
-      .find((importable) => importable.id.includes(id))
+      .find(importable => importable.id.includes(id))
     if (importable) {
       return importable.import().id
     }
     textStyle = library
       .getDocument()
-      .sharedTextStyles.find((style) => style.id.includes(id))
+      .sharedTextStyles.find(style => style.id.includes(id))
     if (textStyle) {
       if (textStyle.getLibrary()) {
         importable = textStyle
           .getLibrary()
           .getImportableTextStyleReferencesForDocument(doc)
-          .find((importable) => importable.name == textStyle.name)
+          .find(importable => importable.name == textStyle.name)
       } else {
         importable = library
           .getImportableTextStyleReferencesForDocument(doc)
-          .find((importable) => importable.name == textStyle.name)
+          .find(importable => importable.name == textStyle.name)
       }
       if (importable) {
         return importable.import().id
       }
     }
   }
-  throw "Text Style not found!"
+  throw 'Text Style not found!'
 }
 
-const getValueForLayerStyleOverride = (doc, symbol, override) => {
+function getValueForLayerStyleOverride(doc, symbol, override) {
   // Get original style id (within brackets) if it is an imported style.
   let id = getStyleID(override.value)
   // Then look for overriding style in this document.
@@ -350,33 +346,33 @@ const getValueForLayerStyleOverride = (doc, symbol, override) => {
   if (library) {
     let importable = library
       .getImportableLayerStyleReferencesForDocument(doc)
-      .find((importable) => importable.id.includes(id))
+      .find(importable => importable.id.includes(id))
     if (importable) {
       return importable.import().id
     }
     layerStyle = library
       .getDocument()
-      .sharedLayerStyles.find((style) => style.id.includes(id))
+      .sharedLayerStyles.find(style => style.id.includes(id))
     if (layerStyle) {
       if (layerStyle.getLibrary()) {
         importable = layerStyle
           .getLibrary()
           .getImportableLayerStyleReferencesForDocument(doc)
-          .find((importable) => importable.name == layerStyle.name)
+          .find(importable => importable.name == layerStyle.name)
       } else {
         importable = library
           .getImportableLayerStyleReferencesForDocument(doc)
-          .find((importable) => importable.name == layerStyle.name)
+          .find(importable => importable.name == layerStyle.name)
       }
       if (importable) {
         return importable.import().id
       }
     }
   }
-  throw "Layer Style not found!"
+  throw 'Layer Style not found!'
 }
 
-const getStyleID = (value) => {
+function getStyleID(value) {
   // Return id within brackets if any.
   let matches = value.match(/\[(.*?)\]/)
   return matches ? matches[1] : value

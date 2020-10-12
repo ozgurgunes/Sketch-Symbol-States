@@ -1,13 +1,12 @@
 {
   "name": "Symbol States",
-  "description": "A Sketch plugin which saves overrides of a symbol instance as states to be applyable on another instance of that symbol later.",
-  "appcast": "https://raw.githubusercontent.com/ozgurgunes/Sketch-Symbol-States/master/.appcast.xml",
   "identifier": "com.gunesozgur.sketch.symbol-states",
-  "homepage": "https://github.com/ozgurgunes/Sketch-Symbol-States",
-  "author": "Özgür Güneş",
+  "author": "Ozgur Gunes",
   "authorEmail": "o.gunes@gmail.com",
-  "compatibleVersion": 52,
-  "bundleVersion": 1,
+  "description": "A Sketch plugin which saves overrides of a symbol instance as states, which could be applied on any instance of that symbol later.",
+  "$schema": "https://raw.githubusercontent.com/sketch-hq/SketchAPI/develop/docs/sketch-plugin-manifest-schema.json",
+  "appcast": "https://raw.githubusercontent.com/ozgurgunes/Sketch-Symbol-States/master/.appcast.xml",
+  "homepage": "https://github.com/ozgurgunes/Sketch-Symbol-States",
   "icon": "icon.png",
   "commands": [
     {
