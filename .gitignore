@@ -1,5 +1,5 @@
 # build artifacts
-symbol-states.sketchplugin
+*.sketchplugin
 
 # npm
 node_modules
@@ -11,3 +11,6 @@ npm-debug.log
 
 # WebStorm
 .idea
+
+# VisualStudioCode
+.vscode

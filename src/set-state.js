@@ -1,7 +1,13 @@
 import sketch from 'sketch/dom'
-import * as UI from './ui'
-import analytics from './analytics'
-import { getSymbol, getStates } from './utils'
+import {
+  success,
+  error,
+  dialog,
+  comboBox,
+  scrollView
+} from '@ozgurgunes/sketch-plugin-ui'
+import analytics from '@ozgurgunes/sketch-plugin-analytics'
+import { getSymbol, getStates, errorList } from './utils'
 
 var doc = sketch.getSelectedDocument()
 var selection = doc.selectedLayers
@@ -24,18 +30,20 @@ export default function(context) {
       symbol.sketchObject.setOverrides(nil)
       // Set symbol overrides for every override data in chosen state.
       stateOverrides.map(stateOverride => {
-        let symbolOverride = symbol.overrides.find(
-          override => override.id == stateOverride.id
-        )
-        // Symbol and style ids change for every document,
-        // if they have been imported from a library.
-        // So, try to get correct override value for current document.
-        try {
-          let value = getValueForOverride(doc, symbol, stateOverride)
-          symbol.setOverrideValue(symbolOverride, value)
-        } catch (e) {
-          errors.push(symbolOverride)
-        }
+        symbol.overrides.map(symbolOverride => {
+          if (stateOverride.id == symbolOverride.id) {
+            // Symbol and style ids change for every document if they
+            // have been imported from a library.
+            // So, try to get correct override value for current document.
+            try {
+              let value = getValueForOverride(doc, symbol, stateOverride)
+              symbol.setOverrideValue(symbolOverride, value)
+            } catch (e) {
+              errors.push(symbolOverride)
+            }
+            // Set override value if got it, set none if not.
+          }
+        })
       })
       // Reload inspector panel with new overrides.
       // This seems unnecessary actually but lets be sure.
@@ -47,30 +55,28 @@ export default function(context) {
         return errorDialog(symbol, stateName, errors)
       }
       analytics('State Set', 1)
-      return UI.success(stateName + ' state set.')
+      return success(stateName + ' state set.')
     }
   } catch (e) {
-    if (e) {
       console.log(e)
       context.document.reloadInspector()
       return e
-    }
   }
 }
 
 function setStateDialog(items) {
   let buttons = ['Set', 'Cancel']
   let info = 'Please select a symbol state.'
-  let accessory = UI.comboBox(items)
+  let accessory = comboBox(items)
   accessory.selectItemAtIndex(0)
-  let response = UI.dialog(info, accessory, buttons)
+  let response = dialog(info, accessory, buttons)
   let result = accessory.indexOfSelectedItem()
   if (response === 1000) {
     if (!result > 0) {
       // User clicked "OK" without selecting a state.
       // Return dialog until user selects a state or clicks "Cancel".
       analytics('No Selection')
-      UI.error('Please select a state.')
+      error('Please select a state.')
       return setStateDialog(items)
     }
     return result
@@ -80,9 +86,9 @@ function setStateDialog(items) {
 function errorDialog(symbol, stateName, overrides) {
   let info = stateName + ' has errors. Some overrides could not be found:'
   let items = getErrorList(symbol, overrides)
-  let list = UI.errorList(items)
-  let accessory = UI.scrollView(list)
-  UI.dialog(info, accessory)
+  let list = errorList(items)
+  let accessory = scrollView(list)
+  dialog(info, accessory)
 }
 
 function getErrorList(symbol, overrides) {

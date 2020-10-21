@@ -1,7 +1,7 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
-import analytics from './analytics'
-import * as UI from './ui'
+import { error, dialog } from '@ozgurgunes/sketch-plugin-ui'
+import analytics from '@ozgurgunes/sketch-plugin-analytics'
 
 export function getSymbol(selection) {
   if (
@@ -9,7 +9,7 @@ export function getSymbol(selection) {
     selection.layers[0].type != sketch.Types.SymbolInstance
   ) {
     analytics('Selection Error')
-    throw UI.error('Please select a symbol instance.')
+    throw error('Please select a symbol instance.')
   } else {
     return selection.layers[0]
   }
@@ -29,7 +29,7 @@ export function getStates(symbol, error) {
   }
   if (error && states.length < 1) {
     analytics('No States')
-    throw UI.dialog('There are not any states.')
+    throw dialog('There are not any states.')
   }
   return states.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase())
 }
@@ -56,4 +56,23 @@ export function saveSymbolStates(symbol, states) {
       states
     )
   }
+}
+
+export function errorList(items) {
+  let listView = NSView.alloc().initWithFrame(
+    NSMakeRect(0, 0, 300, items.length * 24 + 10)
+  )
+  let font = NSFont.systemFontOfSize(NSFont.smallSystemFontSize())
+  let errors = []
+  items.map((item, i) => {
+    errors[i] = NSTextView.alloc().initWithFrame(
+      NSMakeRect(5, 10 + i * 24, 290, 20)
+    )
+    errors[i].insertText(item)
+    errors[i].setFont(font)
+    errors[i].setEditable(false)
+    listView.addSubview(errors[i])
+  })
+  listView.setFlipped(true)
+  return listView
 }

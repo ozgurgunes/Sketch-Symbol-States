@@ -1,6 +1,12 @@
 import sketch from 'sketch/dom'
-import * as UI from './ui'
-import analytics from './analytics'
+import {
+  success,
+  error,
+  dialog,
+  optionList,
+  scrollView
+} from '@ozgurgunes/sketch-plugin-ui'
+import analytics from '@ozgurgunes/sketch-plugin-analytics'
 import {
   getSymbol,
   getStates,
@@ -8,8 +14,7 @@ import {
   saveSymbolStates
 } from './utils'
 
-var doc = sketch.getSelectedDocument()
-var selection = doc.selectedLayers
+var selection = sketch.getSelectedDocument().selectedLayers
 
 export default function() {
   try {
@@ -20,14 +25,14 @@ export default function() {
       states = getStatesFromDocument(symbol, true)
       if (states.length < 1) {
         analytics('No States')
-        throw UI.dialog('There are not any deletable states.')
+        throw dialog('There are not any deletable states.')
       }
     } else {
       states = getStates(symbol, true)
     }
     // Create a selection list of existing states.
-    let list = UI.optionList(states.map(state => state.name))
-    let accessory = UI.scrollView(list.view)
+    let list = optionList(states.map(state => state.name))
+    let accessory = scrollView(list.view)
     let response = deleteStatesDialog(accessory)
     if (response === 1002) {
       // User clicked to "Delete All".
@@ -38,14 +43,14 @@ export default function() {
         // So, save an empty states data.
         saveSymbolStates(symbol, [])
         analytics('Delete All', states.length)
-        return UI.success('All ' + states.length + ' states deleted.')
+        return success('All ' + states.length + ' states deleted.')
       }
     }
     if (response === 1000) {
       if (list.getSelection().length == 0) {
         // User clicked to "Delete" button, without selecting any state.
         analytics('Delete None')
-        return UI.error('Nothing deleted.')
+        return error('Nothing deleted.')
       }
       // Remove selected states from states data.
       list
@@ -55,26 +60,24 @@ export default function() {
       // Save new states data.
       saveSymbolStates(symbol, states)
       analytics('Delete Selected', list.getSelection().length)
-      return UI.success(list.getSelection().length + ' states deleted.')
+      return success(list.getSelection().length + ' states deleted.')
     }
   } catch (e) {
-    if (e) {
-      // If there were errors, log it and return error.
-      console.log(e)
-      return e
-    }
+    // If there were errors, log it and return error.
+    console.log(e)
+    return e
   }
 }
 
 function deleteStatesDialog(accessory) {
   let buttons = ['Delete', 'Cancel', 'Delete All']
   let info = 'Please select stated to be deleted.'
-  return UI.dialog(info, accessory, buttons)
+  return dialog(info, accessory, buttons)
 }
 
 function deleteAllDialog() {
   let buttons = ['Delete All', 'Cancel']
   let message = 'Are you sure?'
   let info = 'All symbol states will be deleted!'
-  return UI.dialog(info, null, buttons, message)
+  return dialog(info, null, buttons, message)
 }

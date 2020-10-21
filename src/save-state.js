@@ -1,6 +1,6 @@
 import sketch from 'sketch/dom'
-import * as UI from './ui'
-import analytics from './analytics'
+import { success, error, dialog, comboBox } from '@ozgurgunes/sketch-plugin-ui'
+import analytics from '@ozgurgunes/sketch-plugin-analytics'
 import {
   getSymbol,
   getStates,
@@ -8,8 +8,7 @@ import {
   saveSymbolStates
 } from './utils'
 
-var doc = sketch.getSelectedDocument()
-var selection = doc.selectedLayers
+var selection = sketch.getSelectedDocument().selectedLayers
 
 function saveState(context) {
   try {
@@ -39,7 +38,7 @@ function saveState(context) {
         // Save updated states.
         saveSymbolStates(symbol, states)
         analytics('Update', 1)
-        return UI.success(stateName + ' updated.')
+        return success(stateName + ' updated.')
       } else {
         // Add new state to states data.
         states.push({
@@ -49,15 +48,13 @@ function saveState(context) {
         // Save states data with new state.
         saveSymbolStates(symbol, states)
         analytics('Save', 1)
-        return UI.success(stateName + ' saved.')
+        return success(stateName + ' saved.')
       }
     }
   } catch (e) {
-    if (e) {
-      // If there were errors, log it and return error.
-      console.log(e)
-      return e
-    }
+    // If there were errors, log it and return error.
+    console.log(e)
+    return e
   }
 }
 
@@ -94,7 +91,6 @@ function getSymbolOverrides(symbol) {
         break
     }
   })
-  console.log(overrides)
   return overrides
 }
 
@@ -113,15 +109,15 @@ function getFillColorOverrideValue(override) {
 function saveStateDialog(items) {
   let buttons = ['Save', 'Cancel']
   let info = 'Please give a name to symbol state.'
-  let accessory = UI.comboBox(items)
-  let response = UI.dialog(info, accessory, buttons)
+  let accessory = comboBox(items)
+  let response = dialog(info, accessory, buttons)
   let result = accessory.stringValue()
   if (response === 1000) {
     if (!result.length() > 0) {
       // User clicked "OK" without entering a name.
       // Return dialog until user enters a name or clicks "Cancel".
       analytics('No Name')
-      UI.error('Please enter a name for state.')
+      error('Please enter a name for state.')
       return saveStateDialog(items)
     }
     return result
@@ -132,5 +128,5 @@ function updateStateDialog(stateName) {
   let buttons = ['Update', 'Cancel']
   let message = 'Are you sure?'
   let info = 'This will update "' + stateName + '" state.'
-  return UI.dialog(info, null, buttons, message)
+  return dialog(info, null, buttons, message)
 }

@@ -31,11 +31,6 @@
     "postinstall": "npm run build && skpm-link"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.1",
-    "@babel/plugin-proposal-export-namespace-from": "^7.10.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.11.0",
-    "@babel/plugin-syntax-async-generators": "^7.8.4",
-    "@babel/preset-env": "^7.11.0",
     "@skpm/babel-preset": "^0.2.2",
     "@skpm/builder": "^0.7.5",
     "eslint": "^5.16.0",
@@ -43,5 +38,9 @@
     "eslint-config-sketch": "^0.2.4",
     "eslint-plugin-prettier": "^3.1.2",
     "prettier": "^1.19.1"
+  },
+  "dependencies": {
+    "@ozgurgunes/sketch-plugin-analytics": "^0.4.1",
+    "@ozgurgunes/sketch-plugin-ui": "^0.2.0"
   }
 }
