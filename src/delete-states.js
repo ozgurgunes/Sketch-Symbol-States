@@ -1,14 +1,14 @@
 import sketch from 'sketch/dom'
 import {
   success,
-  error,
+  fail,
   dialog,
   optionList,
   scrollView
 } from '@ozgurgunes/sketch-plugin-ui'
 import analytics from '@ozgurgunes/sketch-plugin-analytics'
 import {
-  getSymbol,
+  getSymbols,
   getStates,
   getStatesFromDocument,
   saveSymbolStates
@@ -18,14 +18,15 @@ var selection = sketch.getSelectedDocument().selectedLayers
 
 export default function() {
   try {
-    let symbol = getSymbol(selection)
+    let symbol = getSymbols(selection)[0]
     let states
     // Get only deletable states for symbol depend on master's source.
     if (symbol.master.getLibrary()) {
       states = getStatesFromDocument(symbol, true)
       if (states.length < 1) {
         analytics('No States')
-        throw dialog('There are not any deletable states.')
+        dialog('There are not any deletable states.')
+        throw 'There are not any deletable states.'
       }
     } else {
       states = getStates(symbol, true)
@@ -50,7 +51,7 @@ export default function() {
       if (list.getSelection().length == 0) {
         // User clicked to "Delete" button, without selecting any state.
         analytics('Delete None')
-        return error('Nothing deleted.')
+        return fail('Nothing deleted.')
       }
       // Remove selected states from states data.
       list
@@ -63,9 +64,7 @@ export default function() {
       return success(list.getSelection().length + ' states deleted.')
     }
   } catch (e) {
-    // If there were errors, log it and return error.
     console.log(e)
-    return e
   }
 }
 

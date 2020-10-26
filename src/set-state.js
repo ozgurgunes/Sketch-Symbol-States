@@ -1,21 +1,21 @@
 import sketch from 'sketch/dom'
 import {
   success,
-  error,
+  fail,
   dialog,
   comboBox,
   scrollView
 } from '@ozgurgunes/sketch-plugin-ui'
 import analytics from '@ozgurgunes/sketch-plugin-analytics'
-import { getSymbol, getStates, errorList } from './utils'
+import { getSymbols, getStates, errorList } from './utils'
 
 var doc = sketch.getSelectedDocument()
 var selection = doc.selectedLayers
 
 export default function(context) {
   try {
-    let symbol = getSymbol(selection)
-    let states = getStates(symbol, true)
+    let symbols = getSymbols(selection)
+    let states = getStates(symbols[0], true)
     states.unshift({
       name: '- Select a State -',
       overrides: []
@@ -26,18 +26,22 @@ export default function(context) {
       let stateName = states[result].name
       let stateOverrides = states[result].overrides
       let errors = []
-      // Reset overrides before set a state.
-      symbol.sketchObject.setOverrides(nil)
+      // Reset overrides before setting the state.
+      symbols.forEach(symbol => {
+        symbol.sketchObject.setOverrides(nil)
+      })
       // Set symbol overrides for every override data in chosen state.
       stateOverrides.map(stateOverride => {
-        symbol.overrides.map(symbolOverride => {
+        symbols[0].overrides.map(symbolOverride => {
           if (stateOverride.id == symbolOverride.id) {
             // Symbol and style ids change for every document if they
             // have been imported from a library.
             // So, try to get correct override value for current document.
             try {
-              let value = getValueForOverride(doc, symbol, stateOverride)
-              symbol.setOverrideValue(symbolOverride, value)
+              let value = getValueForOverride(doc, symbols[0], stateOverride)
+              symbols.forEach(symbol => {
+                symbol.setOverrideValue(symbolOverride, value)
+              })
             } catch (e) {
               errors.push(symbolOverride)
             }
@@ -52,15 +56,14 @@ export default function(context) {
         analytics('State Errors', errors.length / stateOverrides.length)
         // If there are any overrides whose values couldn't be get,
         // display a list of their layers (and parents) name.
-        return errorDialog(symbol, stateName, errors)
+        return errorDialog(symbols[0], stateName, errors)
       }
       analytics('State Set', 1)
       return success(stateName + ' state set.')
     }
   } catch (e) {
-      console.log(e)
-      context.document.reloadInspector()
-      return e
+    console.log(e)
+    context.document.reloadInspector()
   }
 }
 
@@ -76,7 +79,7 @@ function setStateDialog(items) {
       // User clicked "OK" without selecting a state.
       // Return dialog until user selects a state or clicks "Cancel".
       analytics('No Selection')
-      error('Please select a state.')
+      fail('Please select a state.')
       return setStateDialog(items)
     }
     return result

@@ -1,8 +1,8 @@
 import sketch from 'sketch/dom'
-import { success, error, dialog, comboBox } from '@ozgurgunes/sketch-plugin-ui'
+import { success, fail, dialog, comboBox } from '@ozgurgunes/sketch-plugin-ui'
 import analytics from '@ozgurgunes/sketch-plugin-analytics'
 import {
-  getSymbol,
+  getSymbols,
   getStates,
   getStatesFromDocument,
   saveSymbolStates
@@ -12,7 +12,7 @@ var selection = sketch.getSelectedDocument().selectedLayers
 
 function saveState(context) {
   try {
-    let symbol = getSymbol(selection)
+    let symbol = getSymbols(selection)[0]
     let states
     // Get only updatable states for symbol depend on master's source.
     if (symbol.master.getLibrary()) {
@@ -52,9 +52,7 @@ function saveState(context) {
       }
     }
   } catch (e) {
-    // If there were errors, log it and return error.
     console.log(e)
-    return e
   }
 }
 
@@ -117,7 +115,7 @@ function saveStateDialog(items) {
       // User clicked "OK" without entering a name.
       // Return dialog until user enters a name or clicks "Cancel".
       analytics('No Name')
-      error('Please enter a name for state.')
+      fail('Please enter a name for state.')
       return saveStateDialog(items)
     }
     return result

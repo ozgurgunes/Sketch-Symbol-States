@@ -41,6 +41,6 @@
   },
   "dependencies": {
     "@ozgurgunes/sketch-plugin-analytics": "^0.4.1",
-    "@ozgurgunes/sketch-plugin-ui": "^0.2.0"
+    "@ozgurgunes/sketch-plugin-ui": "^0.3.0"
   }
 }
