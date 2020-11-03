@@ -1,58 +1,61 @@
 import sketch from 'sketch/dom'
-import { success, fail, dialog, comboBox } from '@ozgurgunes/sketch-plugin-ui'
 import analytics from '@ozgurgunes/sketch-plugin-analytics'
+import {
+  successMessage,
+  errorMessage,
+  alert,
+  comboBox,
+} from '@ozgurgunes/sketch-plugin-ui'
 import {
   getSymbols,
   getStates,
   getStatesFromDocument,
-  saveSymbolStates
+  saveSymbolStates,
 } from './utils'
 
 var selection = sketch.getSelectedDocument().selectedLayers
 
-function saveState(context) {
-  try {
-    let symbol = getSymbols(selection)[0]
-    let states
-    // Get only updatable states for symbol depend on master's source.
-    if (symbol.master.getLibrary()) {
-      states = getStatesFromDocument(symbol, true)
-    } else {
-      states = getStates(symbol)
-    }
-    // Get input from user for state name.
-    let stateName = saveStateDialog(states.map(state => state.name))
-    if (stateName) {
-      if (states.some(state => state.name == stateName)) {
-        // User entered an existing state name.
-        // Get a confirmation to update state.
-        let response = updateStateDialog(stateName)
-        if (response != 1000) {
-          // User clicked "Cancel" in confirmation dialog.
-          // Startover the script.
-          return saveState(context)
-        }
-        let i = states.findIndex(state => state.name == stateName)
-        // Update state with new overrides data.
-        states[i].overrides = getSymbolOverrides(symbol)
-        // Save updated states.
-        saveSymbolStates(symbol, states)
-        analytics('Update', 1)
-        return success(stateName + ' updated.')
-      } else {
-        // Add new state to states data.
-        states.push({
-          name: stateName,
-          overrides: getSymbolOverrides(symbol)
-        })
-        // Save states data with new state.
-        saveSymbolStates(symbol, states)
-        analytics('Save', 1)
-        return success(stateName + ' saved.')
+function saveState() {
+  let symbols = getSymbols(selection)
+  if (!symbols) return
+  let symbol = symbols[0]
+  let states
+  // Get only updatable states for symbol depend on master's source.
+  if (symbol.master.getLibrary()) {
+    states = getStatesFromDocument(symbol, true)
+  } else {
+    states = getStates(symbol)
+  }
+  // Get input from user for state name.
+  let stateName = saveStateDialog(states.map(state => state.name))
+  if (stateName) {
+    if (states.some(state => state.name == stateName)) {
+      // User entered an existing state name.
+      // Get a confirmation to update state.
+      let response = updateStateDialog(stateName)
+      if (response != 1000) {
+        // User clicked "Cancel" in confirmation dialog.
+        // Startover the script.
+        return saveState()
       }
+      let i = states.findIndex(state => state.name == stateName)
+      // Update state with new overrides data.
+      states[i].overrides = getSymbolOverrides(symbol)
+      // Save updated states.
+      saveSymbolStates(symbol, states)
+      analytics('Update', 1)
+      return successMessage(stateName + ' updated.')
+    } else {
+      // Add new state to states data.
+      states.push({
+        name: stateName,
+        overrides: getSymbolOverrides(symbol),
+      })
+      // Save states data with new state.
+      saveSymbolStates(symbol, states)
+      analytics('Save', 1)
+      return successMessage(stateName + ' saved.')
     }
-  } catch (e) {
-    console.log(e)
   }
 }
 
@@ -75,7 +78,7 @@ function getSymbolOverrides(symbol) {
         stateOverride = {
           id: override.id,
           property: override.property,
-          value: getFillColorOverrideValue(override)
+          value: getFillColorOverrideValue(override),
         }
         overrides.push(stateOverride)
         break
@@ -83,7 +86,7 @@ function getSymbolOverrides(symbol) {
         stateOverride = {
           id: override.id,
           property: override.property,
-          value: override.value
+          value: override.value,
         }
         overrides.push(stateOverride)
         break
@@ -108,14 +111,14 @@ function saveStateDialog(items) {
   let buttons = ['Save', 'Cancel']
   let info = 'Please give a name to symbol state.'
   let accessory = comboBox(items)
-  let response = dialog(info, accessory, buttons)
+  let response = alert(info, buttons, accessory).runModal()
   let result = accessory.stringValue()
   if (response === 1000) {
     if (!result.length() > 0) {
       // User clicked "OK" without entering a name.
       // Return dialog until user enters a name or clicks "Cancel".
       analytics('No Name')
-      fail('Please enter a name for state.')
+      errorMessage('Please enter a name for state.')
       return saveStateDialog(items)
     }
     return result
@@ -126,5 +129,5 @@ function updateStateDialog(stateName) {
   let buttons = ['Update', 'Cancel']
   let message = 'Are you sure?'
   let info = 'This will update "' + stateName + '" state.'
-  return dialog(info, null, buttons, message)
+  return alert(info, buttons, null, message).runModal()
 }

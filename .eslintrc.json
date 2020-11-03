@@ -9,9 +9,7 @@
       "sketch"],
     "globals": {
         "context": "readonly",
-        "nil": "readonly",
-        "NSSwitchButton": "readonly",
-        "NSURLSession": "readonly"
+        "nil": "readonly"
     },
     "parserOptions": {
         "ecmaVersion": 2018,

@@ -32,7 +32,7 @@ To save current state of selected symbol;
 
 ### Set Symbol State
 
-To apply a state to any instance of that symbol;
+To apply a state to selected symbols;
 
 * Go to ```Plugins > Symbol States > Set State``` or hit <kbd>Cmd</kbd>+<kbd>Ctrl</kbd>+<kbd>O</kbd>.
 * Choose a state in opening dialog window.
@@ -48,4 +48,4 @@ To delete states of selected symbol;
 
 ### States from Document & Library
 
-If you're working on a document and you've imported a symbol from a library; states coming from library will be listed with an `asterisk *`. You can't update or delete states coming from library.
+States can be saved in library and used on any document. States imported from library are being listed with an `asterisk (*)`. It is possible to save or delete new states on working document for imported symbols.
