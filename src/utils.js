@@ -36,7 +36,8 @@ export function getStates(symbol, error) {
   }
   if (error && states.length < 1) {
     analytics('No States')
-    return alert('There are not any states.').runModal()
+    alert('There are not any states.').runModal()
+    return
   }
   return states.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase())
 }

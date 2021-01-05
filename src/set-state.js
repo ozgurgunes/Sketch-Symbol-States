@@ -23,14 +23,16 @@ export default function () {
   })
   // Display a dialog for popup button of existing states.
   let result = setStateDialog(states.map(state => state.name))
-  if (result && states[result]) {
-    let stateName = states[result].name
-    let stateOverrides = states[result].overrides
+  if (result && result.state && states[result.state]) {
+    let stateName = states[result.state].name
+    let stateOverrides = states[result.state].overrides
     let errors = []
     // Reset overrides before setting the state.
-    symbols.forEach(symbol => {
-      symbol.sketchObject.setOverrides(nil)
-    })
+    if (result.reset) {
+      symbols.forEach(symbol => {
+        symbol.sketchObject.setOverrides(nil)
+      })
+    }
     // Set symbol overrides for every override data in chosen state.
     stateOverrides.map(stateOverride => {
       symbols[0].overrides.map(symbolOverride => {
@@ -50,6 +52,9 @@ export default function () {
         }
       })
     })
+    symbols.forEach(symbol => {
+      symbol.resizeWithSmartLayout()
+    })
     // Reload inspector panel with new overrides.
     // This seems unnecessary actually but lets be sure.
     doc.sketchObject.reloadInspector()
@@ -67,19 +72,32 @@ export default function () {
 function setStateDialog(items) {
   let buttons = ['Set', 'Cancel']
   let info = 'Please select a symbol state.'
-  let accessory = comboBox(items)
-  accessory.selectItemAtIndex(0)
-  let response = alert(info, buttons, accessory).runModal()
-  let result = accessory.indexOfSelectedItem()
+
+  let combobox = comboBox(items)
+  combobox.selectItemAtIndex(0)
+
+  let checkbox = NSButton.alloc().initWithFrame(NSMakeRect(0, 32, 240, 25))
+  checkbox.setButtonType(NSSwitchButton)
+  checkbox.setTitle('Reset overrides')
+  checkbox.setState(true)
+
+  let accessory = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 240, 64))
+  accessory.addSubview(combobox)
+  accessory.addSubview(checkbox)
+  accessory.setFlipped(true)
+
+  let dialog = alert(info, buttons, accessory)
+  dialog.window().setInitialFirstResponder(combobox)
+  let response = dialog.runModal()
   if (response === 1000) {
-    if (!result > 0) {
+    if (!combobox.indexOfSelectedItem() > 0) {
       // User clicked "OK" without selecting a state.
       // Return dialog until user selects a state or clicks "Cancel".
       analytics('No Selection')
       errorMessage('Please select a state.')
       return setStateDialog(items)
     }
-    return result
+    return { state: combobox.indexOfSelectedItem(), reset: checkbox.state() }
   }
 }
 

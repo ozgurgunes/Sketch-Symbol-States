@@ -26,23 +26,31 @@ Usage
 
 To save current state of selected symbol;
 
-* Go to ```Plugins > Symbol States > Save State``` or hit <kbd>Cmd</kbd>+<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd>.
+* Go to ```Plugins > Symbol States > Save State```.
 * Give a name to new state or choose an existing one.
 * Click ```Save```. (Click ```OK``` in confirmation dialog if you want to update an existing state.)
+
+#### Save defaults
+
+By default, the plugin only saves the edited override values of the symbol. If this option is checked, symbol's default override values also be saved in the state data.
 
 ### Set Symbol State
 
 To apply a state to selected symbols;
 
-* Go to ```Plugins > Symbol States > Set State``` or hit <kbd>Cmd</kbd>+<kbd>Ctrl</kbd>+<kbd>O</kbd>.
+* Go to ```Plugins > Symbol States > Set State```.
 * Choose a state in opening dialog window.
 * Click ```Apply```.
+
+#### Reset overrides
+
+By default, the plugin resets the symbol overrides before applying a state. If this option is unchecked, symbol will not be reseted and the state data will be applied on current state of the symbol.
 
 ### Delete Symbol States
 
 To delete states of selected symbol;
 
-* Go to ```Plugins > Symbol States > Delete States``` or hit <kbd>Cmd</kbd>+<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd>.
+* Go to ```Plugins > Symbol States > Delete States```.
 * Check states which you want to delete (Click ```Delete All``` if you want to delete all states).
 * Click ```Delete```.
 

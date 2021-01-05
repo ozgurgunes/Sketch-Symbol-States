@@ -27,8 +27,9 @@ function saveState() {
     states = getStates(symbol)
   }
   // Get input from user for state name.
-  let stateName = saveStateDialog(states.map(state => state.name))
-  if (stateName) {
+  let result = saveStateDialog(states.map(state => state.name))
+  if (result && result.name) {
+    let stateName = result.name
     if (states.some(state => state.name == stateName)) {
       // User entered an existing state name.
       // Get a confirmation to update state.
@@ -40,7 +41,7 @@ function saveState() {
       }
       let i = states.findIndex(state => state.name == stateName)
       // Update state with new overrides data.
-      states[i].overrides = getSymbolOverrides(symbol)
+      states[i].overrides = getSymbolOverrides(symbol, result.defaults)
       // Save updated states.
       saveSymbolStates(symbol, states)
       analytics('Update', 1)
@@ -49,7 +50,7 @@ function saveState() {
       // Add new state to states data.
       states.push({
         name: stateName,
-        overrides: getSymbolOverrides(symbol),
+        overrides: getSymbolOverrides(symbol, result.defaults),
       })
       // Save states data with new state.
       saveSymbolStates(symbol, states)
@@ -61,7 +62,7 @@ function saveState() {
 
 export default saveState
 
-function getSymbolOverrides(symbol) {
+function getSymbolOverrides(symbol, defaults) {
   // Prepare overrides data to save as a state.
   let stateOverride
   let overrides = []
@@ -69,9 +70,9 @@ function getSymbolOverrides(symbol) {
     // Ignore uneditable, default and image overrides.
     switch (true) {
       case !override.editable ||
-        override.isDefault ||
         override.property == 'image' ||
-        !override.sketchObject.overrideValue():
+        (override.isDefault && !defaults) ||
+        (!override.sketchObject.overrideValue() && !defaults):
         break
       case override.property == 'fillColor' &&
         override.sketchObject.overrideValue() != null:
@@ -110,18 +111,32 @@ function getFillColorOverrideValue(override) {
 function saveStateDialog(items) {
   let buttons = ['Save', 'Cancel']
   let info = 'Please give a name to symbol state.'
-  let accessory = comboBox(items)
-  let response = alert(info, buttons, accessory).runModal()
-  let result = accessory.stringValue()
+
+  let combobox = comboBox(items)
+
+  let checkbox = NSButton.alloc().initWithFrame(NSMakeRect(0, 32, 240, 25))
+  checkbox.setButtonType(NSSwitchButton)
+  checkbox.setTitle('Save defaults.')
+  checkbox.setState(false)
+
+  let accessory = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 240, 64))
+  accessory.addSubview(combobox)
+  accessory.addSubview(checkbox)
+  accessory.setFlipped(true)
+
+  let dialog = alert(info, buttons, accessory)
+  dialog.window().setInitialFirstResponder(combobox)
+  let response = dialog.runModal()
+
   if (response === 1000) {
-    if (!result.length() > 0) {
+    if (!combobox.stringValue().length() > 0) {
       // User clicked "OK" without entering a name.
       // Return dialog until user enters a name or clicks "Cancel".
       analytics('No Name')
       errorMessage('Please enter a name for state.')
       return saveStateDialog(items)
     }
-    return result
+    return { name: combobox.stringValue(), defaults: checkbox.state() }
   }
 }
 
