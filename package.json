@@ -32,15 +32,15 @@
   },
   "devDependencies": {
     "@skpm/babel-preset": "^0.2.2",
-    "@skpm/builder": "^0.7.7",
-    "eslint": "^7.12.1",
-    "eslint-config-prettier": "^6.15.0",
+    "@skpm/builder": "^0.7.11",
+    "eslint": "^7.25.0",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-config-sketch": "^0.2.4",
-    "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "^2.1.2"
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.2.1"
   },
   "dependencies": {
-    "@ozgurgunes/sketch-plugin-analytics": "^0.5.0",
+    "@ozgurgunes/sketch-plugin-analytics": "^0.5.3",
     "@ozgurgunes/sketch-plugin-ui": "^0.5.0"
   }
 }
