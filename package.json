@@ -40,7 +40,7 @@
     "prettier": "^2.2.1"
   },
   "dependencies": {
-    "@ozgurgunes/sketch-plugin-analytics": "^0.5.3",
+    "@ozgurgunes/sketch-plugin-analytics": "^0.6.0",
     "@ozgurgunes/sketch-plugin-ui": "^0.5.0"
   }
 }
